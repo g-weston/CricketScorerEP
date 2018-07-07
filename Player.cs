@@ -24,11 +24,11 @@ public class Player
 
     public bool IsOut { get; set; }
 
-    public Player(string clubName, int uniquePlayerId, string playersName, int startingScore, bool isBatting) // not convinced we need startingScore or isBatting
+    public Player(string clubName, int uniquePlayerId, string playerName, int startingScore, bool isBatting) // not convinced we need startingScore or isBatting
     {
         ClubName = clubName;
         UniqueId = uniquePlayerId;
-        Name = playersName;
+        Name = playerName;
 
         // startingScore doesn't make any sense for TimeAtTheCrease etc.
         // starting Score makes sense if a previously retired batsman returns to the crease, but in that instance, we'd need to pass in values for runs, balls faced, 4s, 6s and Time.

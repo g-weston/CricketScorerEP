@@ -43,6 +43,7 @@ namespace Scorer
                 playerName = forename + ' ' + surname;
                 playerList.Add(new Player(clubName, playerId, playerName, startingScore, isFacing));
             }
+            file.Close();
         }
 
         static void PopulateTeamFromConsole(string teamName, List<Player> playerList)
@@ -66,7 +67,7 @@ namespace Scorer
                 playerId = int.Parse(Console.ReadLine());
                 startingScore = 0;
                 isFacing = false;
-                playerList.Add(new Player(clubName, playerId, playerName, startingScore, isFacing)); 
+                playerList.Add(new Player(clubName, playerId, playerName, startingScore, isFacing));
             }
         }
 
@@ -78,9 +79,60 @@ namespace Scorer
             return;
         }
 
+        static void ReadMatchDetails(string filename, Match match)
+        {
+            List<string> fileContents = new List<string>();
+            System.IO.StreamReader file = new System.IO.StreamReader(filename);
+
+            string line;
+            int input;
+            while ((line = file.ReadLine()) != null)
+            {
+                fileContents.Add(line);
+            }
+            match.Date = DateTime.ParseExact(fileContents[0], "d", System.Globalization.CultureInfo.CurrentCulture);
+            match.Competition = fileContents[1];
+            match.Venue = fileContents[2];
+            match.Format = fileContents[3];
+            match.AgeGroup = fileContents[4];
+            int.TryParse(fileContents[5], out input);
+            match.ScheduledOvers = input;
+            int.TryParse(fileContents[6], out input);
+            match.RunsPerWideOrNoBall = input;
+            int.TryParse(fileContents[7], out input);
+            match.RebowlDeliveriesFromOver = input;
+
+            file.Close();
+        }
+
+        static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers)
+        {
+            System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
+            file.WriteLine("<html>");
+            file.WriteLine("<body>");
+
+            file.WriteLine("<pre>");
+            file.WriteLine(match.Venue);
+            for (int i = 0; i < teamOnePlayers.Count; i++)
+            {
+                file.WriteLine("{0}, {1}", teamOnePlayers[i].Name, teamOnePlayers[i].RunsScored);
+            }
+            file.WriteLine("Total byes {0}, legbyes {1}, wides {2}, noballs {3}, runs {4}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls, innings.Runs);
+            file.WriteLine("</pre>");
+
+            file.WriteLine("</body>");
+            file.WriteLine("</html>");
+
+            file.Close();
+
+            return;
+        }
+
         static void Main(string[] args)
         {
             // struct opening and continuing as a struct out of a list not in one. creating errors in toher parth of the code
+            var match   = new Match();
+            var innings = new Innings();
             List<Player> teamOnePlayers = new List<Player>();
             List<Player> teamTwoPlayers = new List<Player>();
 
@@ -91,21 +143,21 @@ namespace Scorer
             {
                 PopulateTeamFromFile("TeamOneDefinition.txt", teamOnePlayers);
                 PopulateTeamFromFile("TeamTwoDefinition.txt", teamTwoPlayers);
+                ReadMatchDetails("MatchDefinition.txt", match);
+                innings.ScheduledOvers = match.ScheduledOvers;
             }
             else
             {
                 PopulateTeamFromConsole("one", teamOnePlayers);
                 PopulateTeamFromConsole("two", teamTwoPlayers);
+                Console.WriteLine("Please enter the number of overs in the match");
+                innings.ScheduledOvers = int.Parse(Console.ReadLine());
             }
             // This is the "game play" section, should be a master "game play" method, with individual sub methods describing falls of wicket, runs etc.
             // think we should have a "match" text file - with type of match, number of overs, rules for wides & noballs
             // including number of runs per wide, and also which overs to rebowl from (=1 for senior cricket, =19 for junior cricket)
             // Presumably we want an "innings" method, which we can use twice, once for each team?
 
-            var innings = new Innings();
-            Console.WriteLine("Please enter the number of overs in the match");
-            innings.ScheduledOvers = int.Parse(Console.ReadLine());
-   
             int runsScoredThisDelivery = 0;
             const int runsPerWide = 1;
             const int runsPerNoBall = 1;
@@ -136,16 +188,16 @@ namespace Scorer
                 runsScoredThisOver = 0;
                 while (endOfOver == false)
                 {
-                    Console.WriteLine("What happened on this ball? (Enter either R(UNS) D(OT) W(ICKET) N(OBALL) W(IDE) B(YES) or L(EGBYES))");
+                    Console.WriteLine("What happened on this ball? (Enter either R(UNS) D(OT) W(ICKET) N(OBALL) I (WIDE) B (BYES) or L (LEGBYES))");
                     string deliveryOutcome = Console.ReadLine();
                     switch (deliveryOutcome)
                     {
-                        case "DOT":
+                        case "D": // DOT
                             runsScoredThisDelivery = 0;
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                             validDeliveriesInThisOver++;
                             break;
-                        case "RUNS":
+                        case "R": // RUNS
                             Console.WriteLine("How many runs were scored on this delivery?");
                             input = Console.ReadLine();
                             int.TryParse(input, out runsScoredThisDelivery);
@@ -166,43 +218,38 @@ namespace Scorer
                                     teamOnePlayers[batsmanFacing].NumberOfSixesScored++;
                                     break;
                             }
-
-                            if (runsScoredThisDelivery % 2 == 1) // TO DO This is fine, except for when we have a short run
-                            {
-                                SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
-                            }
                             validDeliveriesInThisOver++;
                             break;
-                        case "BYES":
+                        case "B": // BYES
                             Console.WriteLine("How many byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
                             innings.Runs += runsScoredThisDelivery;
                             innings.Byes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
                             break;
-                        case "LEGBYES":
+                        case "L": // LEGBYES
                             Console.WriteLine("How many leg byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
                             innings.Runs    += runsScoredThisDelivery;
                             innings.LegByes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
                             break;
-                        case "WICKET":
+                        case "W": // WICKET
                             wicketFallen = true;
                             // Lots of logic which is associated with a wicket - will need several methods (think about all there is to do in a scorebook when a wicket falls)
                             // TO DO Have a wicketFallen method, with sub-methods for each dismissal type
-                            Console.WriteLine("How was the batsman out? (Enter BOWLED CAUGHT RUNOUT LBW STUMPED HITWICKET OBSTRUCTION TIMEDOUT HITTWICE HANDLEDBALL)");
+                            Console.WriteLine("How was the batsman out? (Enter B(OWLED) C(AUGHT) R(UNOUT) L(BW) S(TUMPED) H(IT WICKET) O(BSTRUCTION) T(IMED OUT) I (HIT TWICE) A (HANDLED BALL))");
                             howOut = Console.ReadLine();
                             validDeliveriesInThisOver++;
                             break;
-                        case "NOBALL":
+                        case "N":  // NOBALL
                             Console.WriteLine("How many extra runs were scored?");  // TO DO distinguish between runs off the bat and "byes"
                             runsScoredThisDelivery = runsPerNoBall + int.Parse(Console.ReadLine());
                             innings.NoBalls += runsScoredThisDelivery;
                             innings.Runs    += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].NoBallsDelivered++;
                             break;
-                        case "WIDE":
+                        case "I": // WIDE
                             Console.WriteLine("How many extra wides were conceded?");
                             runsScoredThisDelivery = runsPerWide + int.Parse(Console.ReadLine());
                             innings.Wides += runsScoredThisDelivery;
@@ -210,10 +257,15 @@ namespace Scorer
                             teamTwoPlayers[currentBowler].WidesConceded++;
                             break;
                     }
+                    if (runsScoredThisDelivery % 2 == 1) // TO DO This is fine, except for when we have a short run.  
+                        // When we have wide or noball, we need to ensure we are looking at the extra runs only for the purposes of changing ends.
+                    {
+                        SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
+                    }
 
                     if (wicketFallen)
                     {
-                        if ((howOut == "BOWLED") || (howOut == "TIMEDOUT") || (howOut == "STUMPED") || (howOut == "LBW") || (howOut == "HITTWICE")) // and handledball?
+                        if ((howOut == "B") || (howOut == "L") || (howOut == "T") || (howOut == "S") || (howOut == "H")) // BOWLED, LBW, TIMED OUT, STUMPED, HIT WICKET and handledball?
                         {
                             // TO DO Need a generic "WicketFallen" method here
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
@@ -223,7 +275,7 @@ namespace Scorer
                             nextBatsman++;
                             innings.Wickets++;
                         }
-                        if (howOut == "CAUGHT")
+                        if (howOut == "C") // CAUGHT
                         {
                             // TO DO method "DismissalCaught" - could reuse the "wicketfallen" method for much of the syntax
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
@@ -239,24 +291,25 @@ namespace Scorer
                             nextBatsman++;
                             innings.Wickets++; 
                         }
-                        if (howOut == "RUNOUT" || howOut == "OBSTRUCTION" || howOut == "HANDLEDBALL") // TO DO Why is handledball the same as runout?  They wouldn't change ends?  Handledball same as caught?
+                        if (howOut == "R" || howOut == "O" || howOut == "A") // RUN OUT, OBSTRUCTION, HANDLED BALL 
+                            // TO DO Why is handledball the same as runout?  They wouldn't change ends?  Handledball same as caught?
                         {
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
-                            Console.WriteLine("Was the FACING or NOTFACING batsman out?");
+                            Console.WriteLine("Was the F(ACING) or N(OT FACING) batsman out?");
                             string runOutBatsman = Console.ReadLine();
-                            if (runOutBatsman == "FACING") // TO DO how to count runs, for example when they are run out on the second run?
+                            if (runOutBatsman == "F") // FACING.  TO DO how to count runs, for example when they are run out on the second run?
                             {
                                 teamOnePlayers[batsmanFacing].IsOut = true;
                             }
-                            else if (runOutBatsman == "NOTFACING")
+                            else if (runOutBatsman == "N") // NOT FACING
                             {
                                 teamOnePlayers[batsmanNotFacing].IsOut = true;
                             }
 
-                            Console.WriteLine("Will the new batsman be facing? (Enter FACING or NOTFACING");
+                            Console.WriteLine("Will the new batsman be facing? (Enter F(ACING) or N(OT FACING)");
                             batsmanFacing = nextBatsman;
                             string newFacing = Console.ReadLine();
-                            if (newFacing == "NOTFACING")
+                            if (newFacing == "N") // NOT FACING
                             {
                                 SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
                             }
@@ -267,6 +320,8 @@ namespace Scorer
                         wicketFallen = false;
                     }
                     runsScoredThisOver += runsScoredThisDelivery;
+                    // TO DO perhaps consolidate the swap batsmen ends here, to avoid having the logic on both runs and wickets?
+
                     if (validDeliveriesInThisOver == 6)
                     {
                         SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing); // change of ends
@@ -287,7 +342,16 @@ namespace Scorer
                     }
                 }
             }
-            Console.WriteLine("Total byes {0}, legbyes {1}, wides {2}, noballs {3}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls);
+        // Here is the scorecard - base it on play-cricket
+        // need a WriteScorecard() method, and perhaps WriteBatsman and WriteBowler methods which are invoked in a loop?
+        //  Need a game object to cover venue, time of match, format of match, league/cup/friendly etc.  (see file GameDefinition.txt)
+            WriteScorecard("Scorecard.html", match, innings, teamOnePlayers);
+            
+
+            // Testing - 
+            // (1) Run through all options in the program (wickets, runs, byes, noballs + runs etc. etc.)
+            // (2) Take a paper scorebook from this season, and follow it through the game
+            // (3) Score a real match!
         }
     }
 }
