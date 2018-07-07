@@ -31,8 +31,7 @@ namespace Scorer
             int.TryParse(fileContents[1], out numberOfPlayers);
             string[] lineContents = { };
             string forename, surname, playerName;
-            int playerId, startingScore = 0;
-            bool isFacing = false;
+            int playerId;
 
             for (int i = 2; i < numberOfPlayers + 2; i++)
             {
@@ -41,7 +40,7 @@ namespace Scorer
                 forename = lineContents[1];
                 surname = lineContents[2];
                 playerName = forename + ' ' + surname;
-                playerList.Add(new Player(clubName, playerId, playerName, startingScore, isFacing));
+                playerList.Add(new Player(clubName, playerId, playerName));
             }
             file.Close();
         }
@@ -57,17 +56,14 @@ namespace Scorer
             int.TryParse(input, out numberOfPlayers);
 
             string playerName;
-            int playerId, startingScore = 0;
-            bool isFacing = false;
+            int playerId;
             for (int i = 0; i < numberOfPlayers; i++)
             {
                 Console.WriteLine("Please enter the name of player {0} from {1}", i + 1, clubName);
                 playerName = Console.ReadLine();
                 Console.WriteLine("Please enter the id of {0} from {1}", playerName, clubName);
                 playerId = int.Parse(Console.ReadLine());
-                startingScore = 0;
-                isFacing = false;
-                playerList.Add(new Player(clubName, playerId, playerName, startingScore, isFacing));
+                playerList.Add(new Player(clubName, playerId, playerName));
             }
         }
 
@@ -105,7 +101,7 @@ namespace Scorer
             file.Close();
         }
 
-        static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers)
+        static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers, List<Player> teamTwoPlayers)
         {
             System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
             file.WriteLine("<html>");
@@ -113,9 +109,21 @@ namespace Scorer
 
             file.WriteLine("<pre>");
             file.WriteLine(match.Venue);
+            file.WriteLine("Name", "Runs", "4s", "6s", "Balls");
             for (int i = 0; i < teamOnePlayers.Count; i++)
             {
-                file.WriteLine("{0}, {1}", teamOnePlayers[i].Name, teamOnePlayers[i].RunsScored);
+                if (teamOnePlayers[i].IsOut)
+                {
+                    file.WriteLine("{0}, Bowled {1}, {2}, {3}, {4}, {5}", teamOnePlayers[i].Name, teamTwoPlayers[teamOnePlayers[i].DismissingBowler].Name,
+                                                                          teamOnePlayers[i].RunsScored, teamOnePlayers[i].NumberOfFoursScored,
+                                                                          teamOnePlayers[i].NumberOfSixesScored, teamOnePlayers[i].DeliveriesFaced);
+                }
+                else
+                {
+                    file.WriteLine("{0}, Not Out {1}, {2}, {3}, {4}", teamOnePlayers[i].Name,
+                                                                      teamOnePlayers[i].RunsScored, teamOnePlayers[i].NumberOfFoursScored,
+                                                                      teamOnePlayers[i].NumberOfSixesScored, teamOnePlayers[i].DeliveriesFaced);
+                }
             }
             file.WriteLine("Total byes {0}, legbyes {1}, wides {2}, noballs {3}, runs {4}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls, innings.Runs);
             file.WriteLine("</pre>");
@@ -164,7 +172,6 @@ namespace Scorer
 
             bool endOfOver = false; // perhaps an over struct, with members validDeliveries, end of Over?
             int validDeliveriesInThisOver, runsScoredThisOver;
-            bool wicketFallen = false;
             string howOut = "";
 
             int currentBatsmanOne = 0, currentBatsmanTwo = 1;
@@ -174,7 +181,7 @@ namespace Scorer
 
             Console.WriteLine("Which player number is to bowl first?");
             string input = Console.ReadLine();
-            int currentBowler;
+            int currentBowler, dismissingFielder = 0;
             int.TryParse(input, out currentBowler);
             if (currentBowler > teamTwoPlayers.Count) // example error checking
             {
@@ -234,90 +241,96 @@ namespace Scorer
                             innings.LegByes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
                             break;
-                        case "W": // WICKET
-                            wicketFallen = true;
-                            // Lots of logic which is associated with a wicket - will need several methods (think about all there is to do in a scorebook when a wicket falls)
-                            // TO DO Have a wicketFallen method, with sub-methods for each dismissal type
-                            Console.WriteLine("How was the batsman out? (Enter B(OWLED) C(AUGHT) R(UNOUT) L(BW) S(TUMPED) H(IT WICKET) O(BSTRUCTION) T(IMED OUT) I (HIT TWICE) A (HANDLED BALL))");
-                            howOut = Console.ReadLine();
-                            validDeliveriesInThisOver++;
-                            break;
                         case "N":  // NOBALL
                             Console.WriteLine("How many extra runs were scored?");  // TO DO distinguish between runs off the bat and "byes"
+                            // TO DO keep track of "extra" runs to work out who is facing
                             runsScoredThisDelivery = runsPerNoBall + int.Parse(Console.ReadLine());
                             innings.NoBalls += runsScoredThisDelivery;
-                            innings.Runs    += runsScoredThisDelivery;
+                            innings.Runs += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].NoBallsDelivered++;
                             break;
                         case "I": // WIDE
-                            Console.WriteLine("How many extra wides were conceded?");
+                            Console.WriteLine("How many extra wides were conceded?"); // TO DO keep track of "extra" runs to work out who is facing
                             runsScoredThisDelivery = runsPerWide + int.Parse(Console.ReadLine());
                             innings.Wides += runsScoredThisDelivery;
-                            innings.Runs  += runsScoredThisDelivery;
+                            innings.Runs += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].WidesConceded++;
+                            break;
+                        case "W": // WICKET
+                            // Lots of logic which is associated with a wicket - will need several methods (think about all there is to do in a scorebook when a wicket falls)
+                            // TO DO Have a wicketFallen method, with sub-methods for each dismissal type
+                            validDeliveriesInThisOver++;
+                            Console.WriteLine("How was the batsman out? (Enter B(OWLED) C(AUGHT) R(UNOUT) L(BW) S(TUMPED) H(IT WICKET) O(BSTRUCTION) T(IMED OUT) I (HIT TWICE) A (HANDLED BALL))");
+                            howOut = Console.ReadLine();
+                            if ((howOut == "B") || (howOut == "L") || (howOut == "T") || (howOut == "S") || (howOut == "H")) // BOWLED, LBW, TIMED OUT, STUMPED, HIT WICKET and handledball?
+                            {
+                                // TO DO Need a generic "WicketFallen" method here
+                                teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+                                teamOnePlayers[batsmanFacing].IsOut = true;
+                                teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
+                                teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
+                                batsmanFacing = nextBatsman;
+                                nextBatsman++;
+                                innings.Wickets++;
+                            }
+                            if (howOut == "C") // CAUGHT
+                            {
+                                // TO DO method "DismissalCaught" - could reuse the "wicketfallen" method for much of the syntax
+                                Console.WriteLine("Which number player caught the batsman?");
+                                input = Console.ReadLine();
+                                int.TryParse(input, out dismissingFielder);
+                                teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+                                teamOnePlayers[batsmanFacing].IsOut = true;
+                                teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
+                                teamOnePlayers[batsmanFacing].DismissingFielder = dismissingFielder;
+                                batsmanFacing = nextBatsman;
+                                Console.WriteLine("Is the next batsman facing? (YES or NO)"); // how do we work out if the batsmen crossed while the ball was in the air?
+                                string newBatFace = Console.ReadLine();
+                                if (newBatFace == "NO")
+                                {
+                                    SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
+                                }
+                                teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
+                                nextBatsman++;
+                                innings.Wickets++;
+                            }
+                            if (howOut == "R" || howOut == "O" || howOut == "A") // RUN OUT, OBSTRUCTION, HANDLED BALL 
+                                                                                    // TO DO Why is handledball the same as runout?  They wouldn't change ends?  Handledball same as caught?
+                            {
+                                Console.WriteLine("Which number player ran the batsman out?");
+                                input = Console.ReadLine();
+                                int.TryParse(input, out dismissingFielder);
+                                teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+                                Console.WriteLine("Was the F(ACING) or N(OT FACING) batsman out?");
+                                string runOutBatsman = Console.ReadLine();
+                                if (runOutBatsman == "F") // FACING.  TO DO how to count runs, for example when they are run out on the second run?
+                                {
+                                    teamOnePlayers[batsmanFacing].IsOut = true;
+                                    teamOnePlayers[batsmanFacing].DismissingFielder = dismissingFielder;
+                                }
+                                else if (runOutBatsman == "N") // NOT FACING
+                                {
+                                    teamOnePlayers[batsmanNotFacing].IsOut = true;
+                                    teamOnePlayers[batsmanNotFacing].DismissingFielder = dismissingFielder;
+                                }
+
+                                Console.WriteLine("Will the new batsman be facing? (Enter F(ACING) or N(OT FACING)");
+                                batsmanFacing = nextBatsman;
+                                string newFacing = Console.ReadLine();
+                                if (newFacing == "N") // NOT FACING
+                                {
+                                    SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
+                                }
+                                teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
+                                nextBatsman++;
+                                innings.Wickets++;
+                            }
                             break;
                     }
                     if (runsScoredThisDelivery % 2 == 1) // TO DO This is fine, except for when we have a short run.  
-                        // When we have wide or noball, we need to ensure we are looking at the extra runs only for the purposes of changing ends.
+                    // When we have wide or noball, we need to ensure we are looking at the extra runs only for the purposes of changing ends.
                     {
                         SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
-                    }
-
-                    if (wicketFallen)
-                    {
-                        if ((howOut == "B") || (howOut == "L") || (howOut == "T") || (howOut == "S") || (howOut == "H")) // BOWLED, LBW, TIMED OUT, STUMPED, HIT WICKET and handledball?
-                        {
-                            // TO DO Need a generic "WicketFallen" method here
-                            teamOnePlayers[batsmanFacing].DeliveriesFaced++;
-                            teamOnePlayers[batsmanFacing].IsOut = true;
-                            batsmanFacing = nextBatsman;
-                            teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
-                            nextBatsman++;
-                            innings.Wickets++;
-                        }
-                        if (howOut == "C") // CAUGHT
-                        {
-                            // TO DO method "DismissalCaught" - could reuse the "wicketfallen" method for much of the syntax
-                            teamOnePlayers[batsmanFacing].DeliveriesFaced++;
-                            teamOnePlayers[batsmanFacing].IsOut = true;
-                            batsmanFacing = nextBatsman;
-                            Console.WriteLine("Is the next batsman facing? (YES or NO)"); // how do we work out if the batsmen crossed while the ball was in the air?
-                            string newBatFace = Console.ReadLine();
-                            if (newBatFace == "NO")
-                            {
-                                SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
-                            }
-                            teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
-                            nextBatsman++;
-                            innings.Wickets++; 
-                        }
-                        if (howOut == "R" || howOut == "O" || howOut == "A") // RUN OUT, OBSTRUCTION, HANDLED BALL 
-                            // TO DO Why is handledball the same as runout?  They wouldn't change ends?  Handledball same as caught?
-                        {
-                            teamOnePlayers[batsmanFacing].DeliveriesFaced++;
-                            Console.WriteLine("Was the F(ACING) or N(OT FACING) batsman out?");
-                            string runOutBatsman = Console.ReadLine();
-                            if (runOutBatsman == "F") // FACING.  TO DO how to count runs, for example when they are run out on the second run?
-                            {
-                                teamOnePlayers[batsmanFacing].IsOut = true;
-                            }
-                            else if (runOutBatsman == "N") // NOT FACING
-                            {
-                                teamOnePlayers[batsmanNotFacing].IsOut = true;
-                            }
-
-                            Console.WriteLine("Will the new batsman be facing? (Enter F(ACING) or N(OT FACING)");
-                            batsmanFacing = nextBatsman;
-                            string newFacing = Console.ReadLine();
-                            if (newFacing == "N") // NOT FACING
-                            {
-                                SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
-                            }
-                            teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
-                            nextBatsman++;
-                            innings.Wickets++;  
-                        }
-                        wicketFallen = false;
                     }
                     runsScoredThisOver += runsScoredThisDelivery;
                     // TO DO perhaps consolidate the swap batsmen ends here, to avoid having the logic on both runs and wickets?
@@ -331,7 +344,7 @@ namespace Scorer
                             teamTwoPlayers[currentBowler].NumberOfMaidensBowled++;
                         }
 
-                        Console.WriteLine("Which number player is the next bowler?");
+                        Console.WriteLine("Which number player is the next bowler?"); // TO DO - perhaps store currentBowler1 and currentBowler2; avoids clicks if they bowl for a spell
                         input = Console.ReadLine();
                         int.TryParse(input, out currentBowler);
                         if (currentBowler > teamTwoPlayers.Count)
@@ -345,8 +358,7 @@ namespace Scorer
         // Here is the scorecard - base it on play-cricket
         // need a WriteScorecard() method, and perhaps WriteBatsman and WriteBowler methods which are invoked in a loop?
         //  Need a game object to cover venue, time of match, format of match, league/cup/friendly etc.  (see file GameDefinition.txt)
-            WriteScorecard("Scorecard.html", match, innings, teamOnePlayers);
-            
+            WriteScorecard("Scorecard.html", match, innings, teamOnePlayers, teamTwoPlayers);
 
             // Testing - 
             // (1) Run through all options in the program (wickets, runs, byes, noballs + runs etc. etc.)
