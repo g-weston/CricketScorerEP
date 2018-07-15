@@ -24,6 +24,11 @@ public class Player
     public int DismissingBowler { get; set; }
     public int DismissingFielder { get; set; }
     public bool IsOut { get; set; }
+    public int HowOut { get; set; }
+
+    public enum DismissalMethod { b, lbw, ct, st };
+    public Dictionary<string, string> Dismissals;
+    
 
     public Player(string clubName, int uniquePlayerId, string playerName) 
     {
@@ -47,6 +52,7 @@ public class Player
         PositionBowling = 0;
 
         IsOut     = false;
+        HowOut = 0;
         DismissingBowler = 0;
         DismissingFielder = 0;
     }

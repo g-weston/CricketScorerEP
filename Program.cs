@@ -101,6 +101,18 @@ namespace Scorer
             file.Close();
         }
 
+        static void recordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
+        {
+            teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+            teamOnePlayers[batsmanFacing].IsOut = true;
+            teamOnePlayers[batsmanFacing].HowOut = (int)Player.DismissalMethod.b;
+            teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
+            teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
+            batsmanFacing = nextBatsman;
+            nextBatsman++;
+        }
+
+
         static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers, List<Player> teamTwoPlayers)
         {
             System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
@@ -125,7 +137,9 @@ namespace Scorer
                                                                       teamOnePlayers[i].NumberOfSixesScored, teamOnePlayers[i].DeliveriesFaced);
                 }
             }
-            file.WriteLine("Total byes {0}, legbyes {1}, wides {2}, noballs {3}, runs {4}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls, innings.Runs);
+            file.WriteLine("Extras b({0}),lb ({1}),w ({2}),nb ({3}),   {4}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls, 
+                                                                            (innings.Byes + innings.LegByes + innings.Wides + innings.NoBalls));
+            file.WriteLine("Total  {0}", innings.Runs);
             file.WriteLine("</pre>");
 
             file.WriteLine("</body>");
@@ -201,6 +215,8 @@ namespace Scorer
                     {
                         case "D": // DOT
                             runsScoredThisDelivery = 0;
+ //                           recordRuns(batsmanFacing, teamOnePlayers, runsScoredThisDelivery);
+                            
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                             validDeliveriesInThisOver++;
                             break;
@@ -209,12 +225,11 @@ namespace Scorer
                             input = Console.ReadLine();
                             int.TryParse(input, out runsScoredThisDelivery);
 
+ //                           recordRuns(batsmanFacing, teamOnePlayers, teamTwoPlayers, runsScoredThisDelivery);
                             teamOnePlayers[batsmanFacing].RunsScored += runsScoredThisDelivery;
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                             teamTwoPlayers[currentBowler].RunsConceded += runsScoredThisDelivery;
                             innings.Runs += runsScoredThisDelivery;
-
-                            Console.WriteLine("Total runs {0}, wickets {1}, overs {2}", innings.Runs, innings.Wickets, innings.Overs);
 
                             switch (runsScoredThisDelivery)
                             {
@@ -230,6 +245,7 @@ namespace Scorer
                         case "B": // BYES
                             Console.WriteLine("How many byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
+                           // recordByes(innings, runsScoredThisDelivery);
                             innings.Runs += runsScoredThisDelivery;
                             innings.Byes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
@@ -237,6 +253,7 @@ namespace Scorer
                         case "L": // LEGBYES
                             Console.WriteLine("How many leg byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
+                            // recordLegByes(innings, runsScoredThisDelivery);
                             innings.Runs    += runsScoredThisDelivery;
                             innings.LegByes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
@@ -245,6 +262,7 @@ namespace Scorer
                             Console.WriteLine("How many extra runs were scored?");  // TO DO distinguish between runs off the bat and "byes"
                             // TO DO keep track of "extra" runs to work out who is facing
                             runsScoredThisDelivery = runsPerNoBall + int.Parse(Console.ReadLine());
+                            // recordNoBalls(innings, runsScoredThisDelivery);
                             innings.NoBalls += runsScoredThisDelivery;
                             innings.Runs += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].NoBallsDelivered++;
@@ -265,12 +283,14 @@ namespace Scorer
                             if ((howOut == "B") || (howOut == "L") || (howOut == "T") || (howOut == "S") || (howOut == "H")) // BOWLED, LBW, TIMED OUT, STUMPED, HIT WICKET and handledball?
                             {
                                 // TO DO Need a generic "WicketFallen" method here
-                                teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+                                // recordFallenWicket(dismissalMethod, batsmanFacing, nextBatsman, teamOnePlayers, currentBowler, teamTwoPlayers)
+                             /*   teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                                 teamOnePlayers[batsmanFacing].IsOut = true;
+                                teamOnePlayers[batsmanFacing].HowOut = (int)Player.DismissalMethod.b;
                                 teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
                                 teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
                                 batsmanFacing = nextBatsman;
-                                nextBatsman++;
+                                nextBatsman++;*/
                                 innings.Wickets++;
                             }
                             if (howOut == "C") // CAUGHT
@@ -279,20 +299,22 @@ namespace Scorer
                                 Console.WriteLine("Which number player caught the batsman?");
                                 input = Console.ReadLine();
                                 int.TryParse(input, out dismissingFielder);
+                                // recordFallenWicket(batsmanFacing, teamOnePlayers, currentBowler, dismissingFielder, teamTwoPlayers)
                                 teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                                 teamOnePlayers[batsmanFacing].IsOut = true;
                                 teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
                                 teamOnePlayers[batsmanFacing].DismissingFielder = dismissingFielder;
+                                teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
                                 batsmanFacing = nextBatsman;
+                                nextBatsman++;
+                                innings.Wickets++;
+                                
                                 Console.WriteLine("Is the next batsman facing? (YES or NO)"); // how do we work out if the batsmen crossed while the ball was in the air?
                                 string newBatFace = Console.ReadLine();
                                 if (newBatFace == "NO")
                                 {
                                     SwapFacingBatsmen(ref batsmanFacing, ref batsmanNotFacing);
                                 }
-                                teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
-                                nextBatsman++;
-                                innings.Wickets++;
                             }
                             if (howOut == "R" || howOut == "O" || howOut == "A") // RUN OUT, OBSTRUCTION, HANDLED BALL 
                                                                                     // TO DO Why is handledball the same as runout?  They wouldn't change ends?  Handledball same as caught?
