@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CricketScorerEP.Android", "CricketScorerEP\CricketScorerEP.Android\CricketScorerEP.Android.csproj", "{BDF0B1A7-10A2-4960-A8E6-56D35D909735}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CricketScorerEP", "CricketScorerEP\CricketScorerEP\CricketScorerEP.shproj", "{62C10D91-1AF5-4900-87ED-BC77E4B3B35F}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CricketScorerEP\CricketScorerEP\CricketScorerEP.projitems*{62c10d91-1af5-4900-87ed-bc77e4b3b35f}*SharedItemsImports = 13
+		CricketScorerEP\CricketScorerEP\CricketScorerEP.projitems*{bdf0b1a7-10a2-4960-a8e6-56d35d909735}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDF0B1A7-10A2-4960-A8E6-56D35D909735}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {533EBDB8-DC66-4607-8BC7-DAFD2FA72FE4}
+	EndGlobalSection
+EndGlobal

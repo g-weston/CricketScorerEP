@@ -27,16 +27,13 @@ namespace Scorer
                 fileContents.Add(line);
             }
             string clubName = fileContents[0];
-            int numberOfPlayers;
-            int.TryParse(fileContents[1], out numberOfPlayers);
+            int.TryParse(fileContents[1], out int numberOfPlayers);
             string[] lineContents = { };
             string forename, surname, playerName;
-            int playerId;
-
             for (int i = 2; i < numberOfPlayers + 2; i++)
             {
                 lineContents = fileContents[i].Split(' ');
-                int.TryParse(lineContents[0], out playerId);
+                int.TryParse(lineContents[0], out int playerId);
                 forename = lineContents[1];
                 surname = lineContents[2];
                 playerName = forename + ' ' + surname;
@@ -51,9 +48,8 @@ namespace Scorer
             string clubName = Console.ReadLine();
 
             Console.WriteLine("Enter the number of players in {0}", clubName);
-            int numberOfPlayers;
             string input = Console.ReadLine();
-            int.TryParse(input, out numberOfPlayers);
+            int.TryParse(input, out int numberOfPlayers);
 
             string playerName;
             int playerId;
@@ -81,7 +77,6 @@ namespace Scorer
             System.IO.StreamReader file = new System.IO.StreamReader(filename);
 
             string line;
-            int input;
             while ((line = file.ReadLine()) != null)
             {
                 fileContents.Add(line);
@@ -91,7 +86,7 @@ namespace Scorer
             match.Venue = fileContents[2];
             match.Format = fileContents[3];
             match.AgeGroup = fileContents[4];
-            int.TryParse(fileContents[5], out input);
+            int.TryParse(fileContents[5], out int input);
             match.ScheduledOvers = input;
             int.TryParse(fileContents[6], out input);
             match.RunsPerWideOrNoBall = input;
@@ -101,7 +96,7 @@ namespace Scorer
             file.Close();
         }
 
-        static void recordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
+        static void RecordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
         {
             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
             teamOnePlayers[batsmanFacing].IsOut = true;
@@ -195,8 +190,8 @@ namespace Scorer
 
             Console.WriteLine("Which player number is to bowl first?");
             string input = Console.ReadLine();
-            int currentBowler, dismissingFielder = 0;
-            int.TryParse(input, out currentBowler);
+            int dismissingFielder = 0;
+            int.TryParse(input, out int currentBowler);
             if (currentBowler > teamTwoPlayers.Count) // example error checking
             {
                 Console.WriteLine("Not a valid player number");

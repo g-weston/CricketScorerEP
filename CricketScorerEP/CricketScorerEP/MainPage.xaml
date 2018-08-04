@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CricketScorerEP"
+             x:Class="CricketScorerEP.MainPage">
+
+    <ContentPage.Content>
+        <StackLayout>
+
+            <Grid x:Name="controlGrid" RowSpacing="1" ColumnSpacing="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="100" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Text="0-0" Grid.Row="0" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
+        FontSize="60" Grid.ColumnSpan="2" />
+                <Label Text="J Bairstow" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Label Text="0" Grid.Row="1" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Label Text="J Root" Grid.Row="2" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Label Text="0" Grid.Row="2" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Label Text="L Plunkett" Grid.Row="3" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Label Text="0-0-0-0" Grid.Row="3" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30"/>
+                <Button Text = "RUNS" Grid.Row="4" Grid.Column="0" Clicked="RunsClicked" />
+                <Button Text = "BOUNDARY" Grid.Row="4" Grid.Column="1" Clicked="BoundaryClicked" />
+                <Button Text = "DOT" Grid.Row="5" Grid.Column="0" />
+                <Button Text = "WICKET" Grid.Row="5" Grid.Column="1" Clicked="WicketClicked" />
+                <Button Text = "WIDE" Grid.Row="6" Grid.Column="0" Clicked="WideClicked"/>
+                <Button Text = "NO BALL" Grid.Row="6" Grid.Column="1" Clicked="NoBallClicked"/>
+                <Button Text = "BYES/LEGBYES" Grid.Row="7" Grid.Column="0" Clicked="ByesClicked" />
+                <Button Text = "SETTINGS/OVERRULE" Grid.Row="7" Grid.Column="1" />
+                </Grid>
+            
+        </StackLayout>
+    </ContentPage.Content>
+
+</ContentPage>
