@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CricketScorerEP.Android", "
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CricketScorerEP", "CricketScorerEP\CricketScorerEP\CricketScorerEP.shproj", "{62C10D91-1AF5-4900-87ED-BC77E4B3B35F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E183B7FB-4478-40CD-94A8-6F04A08C7D37}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		CricketScorerEP\CricketScorerEP\CricketScorerEP.projitems*{62c10d91-1af5-4900-87ed-bc77e4b3b35f}*SharedItemsImports = 13
