@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Scorer
+namespace CricketScorerEP
 {
     public class ActiveBatsmen
     {

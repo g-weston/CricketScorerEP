@@ -19,7 +19,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Label Text="{Binding scoreHeader}" Grid.Row="0" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
+                <Label Text="{Binding scoreHeaderCreator}" Grid.Row="0" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
         FontSize="60" Grid.ColumnSpan="2" />
                 <Label Text="J Bairstow" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
                        FontSize="30"/>

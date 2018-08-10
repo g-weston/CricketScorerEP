@@ -11,6 +11,7 @@ namespace CricketScorerEP
         {
             InitializeComponent();
             BindingContext = this;
+            var innings = new Innings();
         }
 
         private async void NavigateFirstPage(object sender, EventArgs e)

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,25 +11,117 @@ using Xamarin.Forms.Xaml;
 
 namespace CricketScorerEP
 {
-	public partial class FirstPage : ContentPage
-	{
-		public FirstPage()
+	public partial class FirstPage : ContentPage, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+
+        public FirstPage()
 		{
 			InitializeComponent();
 		    BindingContext = this;
         }
 
-	    public string scoreHeader { get; } = "MY TEXT";
+        public class ScoreHeaderCreator : INotifyPropertyChanged
+        {
+            private string totalScore;
+            // Declare the event
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public ScoreHeaderCreator()
+            {
+                totalScore = "TEXT";
+            }
+
+            public ScoreHeaderCreator(string value)
+            {
+                this.totalScore = value;
+            }
+
+            public string ScoreHeaderTotalScore
+            {
+                get { return totalScore; }
+                set
+                {
+                    totalScore = value;
+                    // Call OnPropertyChanged whenever the property is updated
+                    OnPropertyChanged("scoreHeaderTotalScore");
+                }
+            }
+
+            // Create the OnPropertyChanged method to raise the event
+            protected void OnPropertyChanged(string totalScore)
+            {
+                PropertyChangedEventHandler handler = PropertyChanged;
+                if (handler != null)
+                {
+                    handler(this, new PropertyChangedEventArgs(totalScore));
+                }
+            }
+        }
+        //public string scoreHeader { get; } = Innings.Runs;
+
+        /*
+        public class SelectedDateViewModel : INotifyPropertyChanged
+        {
+            private readonly string FullScore = "dddd, MMMM d, yyyy";
+
+            private DateTime selectedDate;
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public SelectedDateViewModel()
+            {
+                Debug.WriteLine("Entering SelectedDateViewModel.SelectedDateViewModel() - Constructor");
+
+                SelectedDate = DateTime.Now;
+
+                Debug.WriteLine("Leaving SelectedDateViewModel.SelectedDateViewModel() - Constructor");
+            }
+
+            public DateTime SelectedDate
+            {
+                get
+                {
+                    return selectedDate;
+                }
+
+                set
+                {
+                    if (selectedDate != value)
+                    {
+                        selectedDate = value;
+                        OnPropertyChanged("SelectedDate");
+                    }
+                }
+            }
+
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                Debug.WriteLine("Inside SelectedDateViewModel.OnPropertyChanged()");
+
+                Debug.WriteLine($"SelectedDate = {selectedDate.ToString(FullScore)}");
+
+                var trace =
+                    $"PropertyChanged Is Null: {(PropertyChanged == null ? "Yes" : "No")}";
+                Debug.WriteLine(trace);
+
+                var propertyChangedCallback = PropertyChanged;
+                propertyChangedCallback?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        */
 
 
 
-        async void RunsClicked(object sender, EventArgs e)
+        async void RunsClicked(object sender, EventArgs e, Innings innings)
         {
 
             var runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             switch (runsScored)
             {
                 case "1":
+                    await DisplayActionSheet("adfg", innings.Runs.ToString(), "Cancel", null);
                     break;
                 case "2":
                     break;
