@@ -13,13 +13,15 @@ namespace CricketScorerEP
 {
 	public partial class FirstPage : ContentPage, System.ComponentModel.INotifyPropertyChanged
     {
-        
-
         public FirstPage()
 		{
 			InitializeComponent();
 		    BindingContext = this;
+		    
+
         }
+
+        
 
         public class ScoreHeaderCreator : INotifyPropertyChanged
         {
@@ -58,7 +60,10 @@ namespace CricketScorerEP
                 }
             }
         }
-        //public string scoreHeader { get; } = Innings.Runs;
+        
+        var innings = new Innings();
+
+        public string ScoreHeader { get; set; } = innings.Runs.ToString();
 
         /*
         public class SelectedDateViewModel : INotifyPropertyChanged
@@ -112,16 +117,14 @@ namespace CricketScorerEP
 
         */
 
-
-
-        async void RunsClicked(object sender, EventArgs e, Innings innings)
+        async void RunsClicked(object sender, EventArgs e)
         {
-
+            Scorer.RecordRunsScored();
             var runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             switch (runsScored)
             {
                 case "1":
-                    await DisplayActionSheet("adfg", innings.Runs.ToString(), "Cancel", null);
+                    await DisplayAlert("adfg", runsScored, "Cancel");
                     break;
                 case "2":
                     break;
@@ -133,11 +136,11 @@ namespace CricketScorerEP
         }
         async void WicketClicked(object sender, EventArgs e)
         {
-
             var wayOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
             switch (wayOut)
             {
                 case "Bowled":
+                    //RecordFallenWicket();
                     break;
                 case "Caught":
                     break;

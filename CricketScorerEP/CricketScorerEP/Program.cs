@@ -15,7 +15,7 @@ namespace CricketScorerEP
         }
     }
 
-    class Program
+    public class Scorer
     {
         static void PopulateTeamFromFile(string filename, List<Player> playerList)
         {
@@ -107,6 +107,10 @@ namespace CricketScorerEP
             nextBatsman++;
         }
 
+        public static void RecordRunsScored()
+        {
+
+        }
 
         static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers, List<Player> teamTwoPlayers)
         {

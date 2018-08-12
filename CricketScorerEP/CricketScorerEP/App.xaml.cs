@@ -10,15 +10,15 @@ namespace CricketScorerEP
 		public App ()
 		{
 			InitializeComponent();
-
 			MainPage  = new NavigationPage(new MainPage());
-
 		}
 
 		protected override void OnStart ()
 		{
-			// Handle when your app starts
-		}
+		    // Handle when your app starts
+            var match   = new Match();
+		    var innings = new Innings();  
+        }
 
 		protected override void OnSleep ()
 		{
