@@ -71,7 +71,7 @@ namespace CricketScorerEP
             return;
         }
 
-        static void ReadMatchDetails(string filename, Match match)
+        static void ReadMatchDetails(string filename)
         {
             List<string> fileContents = new List<string>();
             System.IO.StreamReader file = new System.IO.StreamReader(filename);
@@ -81,17 +81,17 @@ namespace CricketScorerEP
             {
                 fileContents.Add(line);
             }
-            match.Date = DateTime.ParseExact(fileContents[0], "d", System.Globalization.CultureInfo.CurrentCulture);
-            match.Competition = fileContents[1];
-            match.Venue = fileContents[2];
-            match.Format = fileContents[3];
-            match.AgeGroup = fileContents[4];
+            Match.Date = DateTime.ParseExact(fileContents[0], "d", System.Globalization.CultureInfo.CurrentCulture);
+            Match.Competition = fileContents[1];
+            Match.Venue = fileContents[2];
+            Match.Format = fileContents[3];
+            Match.AgeGroup = fileContents[4];
             int.TryParse(fileContents[5], out int input);
-            match.ScheduledOvers = input;
+            Match.ScheduledOvers = input;
             int.TryParse(fileContents[6], out input);
-            match.RunsPerWideOrNoBall = input;
+            Match.RunsPerWideOrNoBall = input;
             int.TryParse(fileContents[7], out input);
-            match.RebowlDeliveriesFromOver = input;
+            Match.RebowlDeliveriesFromOver = input;
 
             file.Close();
         }
@@ -112,14 +112,14 @@ namespace CricketScorerEP
 
         }
 
-        static void WriteScorecard(string filename, Match match, Innings innings, List<Player> teamOnePlayers, List<Player> teamTwoPlayers)
+        static void WriteScorecard(string filename, List<Player> teamOnePlayers, List<Player> teamTwoPlayers)
         {
             System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
             file.WriteLine("<html>");
             file.WriteLine("<body>");
 
             file.WriteLine("<pre>");
-            file.WriteLine(match.Venue);
+            file.WriteLine(Match.Venue);
             file.WriteLine("Name", "Runs", "4s", "6s", "Balls");
             for (int i = 0; i < teamOnePlayers.Count; i++)
             {
@@ -136,9 +136,9 @@ namespace CricketScorerEP
                                                                       teamOnePlayers[i].NumberOfSixesScored, teamOnePlayers[i].DeliveriesFaced);
                 }
             }
-            file.WriteLine("Extras b({0}),lb ({1}),w ({2}),nb ({3}),   {4}", innings.Byes, innings.LegByes, innings.Wides, innings.NoBalls, 
-                                                                            (innings.Byes + innings.LegByes + innings.Wides + innings.NoBalls));
-            file.WriteLine("Total  {0}", innings.Runs);
+            file.WriteLine("Extras b({0}),lb ({1}),w ({2}),nb ({3}),   {4}", Innings.Byes, Innings.LegByes, Innings.Wides, Innings.NoBalls, 
+                                                                            (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+            file.WriteLine("Total  {0}", Innings.Runs);
             file.WriteLine("</pre>");
 
             file.WriteLine("</body>");
@@ -149,11 +149,19 @@ namespace CricketScorerEP
             return;
         }
 
+        public static int BallsFaced = 0;
+        public static int DeliveryRuns = 1;
+        public static void RecordRunsHit()
+        {
+            Innings.Runs = Innings.Runs + DeliveryRuns;
+            BallsFaced
+        }
+
         static void Main(string[] args)
         {
             // struct opening and continuing as a struct out of a list not in one. creating errors in toher parth of the code
-            var match   = new Match();
-            var innings = new Innings();
+            
+
             List<Player> teamOnePlayers = new List<Player>();
             List<Player> teamTwoPlayers = new List<Player>();
 
@@ -164,18 +172,18 @@ namespace CricketScorerEP
             {
                 PopulateTeamFromFile("TeamOneDefinition.txt", teamOnePlayers);
                 PopulateTeamFromFile("TeamTwoDefinition.txt", teamTwoPlayers);
-                ReadMatchDetails("MatchDefinition.txt", match);
-                innings.ScheduledOvers = match.ScheduledOvers;
+                ReadMatchDetails("MatchDefinition.txt");
+                Innings.ScheduledOvers = Match.ScheduledOvers;
             }
             else
             {
                 PopulateTeamFromConsole("one", teamOnePlayers);
                 PopulateTeamFromConsole("two", teamTwoPlayers);
-                Console.WriteLine("Please enter the number of overs in the match");
-                innings.ScheduledOvers = int.Parse(Console.ReadLine());
+                Console.WriteLine("Please enter the number of overs in the Match");
+                Innings.ScheduledOvers = int.Parse(Console.ReadLine());
             }
             // This is the "game play" section, should be a master "game play" method, with individual sub methods describing falls of wicket, runs etc.
-            // think we should have a "match" text file - with type of match, number of overs, rules for wides & noballs
+            // think we should have a "Match" text file - with type of Match, number of overs, rules for wides & noballs
             // including number of runs per wide, and also which overs to rebowl from (=1 for senior cricket, =19 for junior cricket)
             // Presumably we want an "innings" method, which we can use twice, once for each team?
 
@@ -201,7 +209,7 @@ namespace CricketScorerEP
                 Console.WriteLine("Not a valid player number");
             }
 
-            for (int numberOversBowled = 0; numberOversBowled < innings.ScheduledOvers; numberOversBowled++)
+            for (int numberOversBowled = 0; numberOversBowled < Innings.ScheduledOvers; numberOversBowled++)
             {
                 endOfOver = false;
                 validDeliveriesInThisOver = 0;
@@ -228,7 +236,7 @@ namespace CricketScorerEP
                             teamOnePlayers[batsmanFacing].RunsScored += runsScoredThisDelivery;
                             teamOnePlayers[batsmanFacing].DeliveriesFaced++;
                             teamTwoPlayers[currentBowler].RunsConceded += runsScoredThisDelivery;
-                            innings.Runs += runsScoredThisDelivery;
+                            Innings.Runs += runsScoredThisDelivery;
 
                             switch (runsScoredThisDelivery)
                             {
@@ -244,33 +252,33 @@ namespace CricketScorerEP
                         case "B": // BYES
                             Console.WriteLine("How many byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
-                           // recordByes(innings, runsScoredThisDelivery);
-                            innings.Runs += runsScoredThisDelivery;
-                            innings.Byes += runsScoredThisDelivery;
+                           // recordByes(Innings, runsScoredThisDelivery);
+                            Innings.Runs += runsScoredThisDelivery;
+                            Innings.Byes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
                             break;
                         case "L": // LEGBYES
                             Console.WriteLine("How many leg byes were scored?");
                             runsScoredThisDelivery = int.Parse(Console.ReadLine());
-                            // recordLegByes(innings, runsScoredThisDelivery);
-                            innings.Runs    += runsScoredThisDelivery;
-                            innings.LegByes += runsScoredThisDelivery;
+                            // recordLegByes(Innings, runsScoredThisDelivery);
+                            Innings.Runs    += runsScoredThisDelivery;
+                            Innings.LegByes += runsScoredThisDelivery;
                             validDeliveriesInThisOver++;
                             break;
                         case "N":  // NOBALL
                             Console.WriteLine("How many extra runs were scored?");  // TO DO distinguish between runs off the bat and "byes"
                             // TO DO keep track of "extra" runs to work out who is facing
                             runsScoredThisDelivery = runsPerNoBall + int.Parse(Console.ReadLine());
-                            // recordNoBalls(innings, runsScoredThisDelivery);
-                            innings.NoBalls += runsScoredThisDelivery;
-                            innings.Runs += runsScoredThisDelivery;
+                            // recordNoBalls(Innings, runsScoredThisDelivery);
+                            Innings.NoBalls += runsScoredThisDelivery;
+                            Innings.Runs += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].NoBallsDelivered++;
                             break;
                         case "I": // WIDE
                             Console.WriteLine("How many extra wides were conceded?"); // TO DO keep track of "extra" runs to work out who is facing
                             runsScoredThisDelivery = runsPerWide + int.Parse(Console.ReadLine());
-                            innings.Wides += runsScoredThisDelivery;
-                            innings.Runs += runsScoredThisDelivery;
+                            Innings.Wides += runsScoredThisDelivery;
+                            Innings.Runs += runsScoredThisDelivery;
                             teamTwoPlayers[currentBowler].WidesConceded++;
                             break;
                         case "W": // WICKET
@@ -290,7 +298,7 @@ namespace CricketScorerEP
                                 teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
                                 batsmanFacing = nextBatsman;
                                 nextBatsman++;*/
-                                innings.Wickets++;
+                                Innings.Wickets++;
                             }
                             if (howOut == "C") // CAUGHT
                             {
@@ -306,7 +314,7 @@ namespace CricketScorerEP
                                 teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
                                 batsmanFacing = nextBatsman;
                                 nextBatsman++;
-                                innings.Wickets++;
+                                Innings.Wickets++;
                                 
                                 Console.WriteLine("Is the next batsman facing? (YES or NO)"); // how do we work out if the batsmen crossed while the ball was in the air?
                                 string newBatFace = Console.ReadLine();
@@ -344,7 +352,7 @@ namespace CricketScorerEP
                                 }
                                 teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
                                 nextBatsman++;
-                                innings.Wickets++;
+                                Innings.Wickets++;
                             }
                             break;
                     }
@@ -379,7 +387,7 @@ namespace CricketScorerEP
         // Here is the scorecard - base it on play-cricket
         // need a WriteScorecard() method, and perhaps WriteBatsman and WriteBowler methods which are invoked in a loop?
         //  Need a game object to cover venue, time of match, format of match, league/cup/friendly etc.  (see file GameDefinition.txt)
-            WriteScorecard("Scorecard.html", match, innings, teamOnePlayers, teamTwoPlayers);
+            WriteScorecard("Scorecard.html", teamOnePlayers, teamTwoPlayers);
 
             // Testing - 
             // (1) Run through all options in the program (wickets, runs, byes, noballs + runs etc. etc.)

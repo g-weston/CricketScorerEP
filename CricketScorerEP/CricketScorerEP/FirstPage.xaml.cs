@@ -11,7 +11,7 @@ using Xamarin.Forms.Xaml;
 
 namespace CricketScorerEP
 {
-	public partial class FirstPage : ContentPage, System.ComponentModel.INotifyPropertyChanged
+	public partial class FirstPage : ContentPage, INotifyPropertyChanged
     {
         public FirstPage()
 		{
@@ -61,61 +61,36 @@ namespace CricketScorerEP
             }
         }
         
-        var innings = new Innings();
+ 
 
-        public string ScoreHeader { get; set; } = innings.Runs.ToString();
+        //public string ScoreHeader { get; set; } = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
 
-        /*
-        public class SelectedDateViewModel : INotifyPropertyChanged
+        private string scoreHeader;
+        public string ScoreHeader
         {
-            private readonly string FullScore = "dddd, MMMM d, yyyy";
-
-            private DateTime selectedDate;
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            public SelectedDateViewModel()
+            get
             {
-                Debug.WriteLine("Entering SelectedDateViewModel.SelectedDateViewModel() - Constructor");
-
-                SelectedDate = DateTime.Now;
-
-                Debug.WriteLine("Leaving SelectedDateViewModel.SelectedDateViewModel() - Constructor");
+                return scoreHeader;
             }
-
-            public DateTime SelectedDate
+            set
             {
-                get
+                if (scoreHeader != value)
                 {
-                    return selectedDate;
+                    scoreHeader = value;
+                    this.OnPropertyChanged("ScoreHeader");
                 }
-
-                set
-                {
-                    if (selectedDate != value)
-                    {
-                        selectedDate = value;
-                        OnPropertyChanged("SelectedDate");
-                    }
-                }
-            }
-
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                Debug.WriteLine("Inside SelectedDateViewModel.OnPropertyChanged()");
-
-                Debug.WriteLine($"SelectedDate = {selectedDate.ToString(FullScore)}");
-
-                var trace =
-                    $"PropertyChanged Is Null: {(PropertyChanged == null ? "Yes" : "No")}";
-                Debug.WriteLine(trace);
-
-                var propertyChangedCallback = PropertyChanged;
-                propertyChangedCallback?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
-        */
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null) {
+                PropertyChanged(this,
+                    new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
 
         async void RunsClicked(object sender, EventArgs e)
         {
@@ -124,11 +99,23 @@ namespace CricketScorerEP
             switch (runsScored)
             {
                 case "1":
-                    await DisplayAlert("adfg", runsScored, "Cancel");
+                    Scorer.DeliveryRuns = 1;
+                    Scorer.RecordRunsHit();
+                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
+                    TotalScore
                     break;
                 case "2":
+                    Scorer.DeliveryRuns = 2;
+                    Scorer.RecordRunsHit();
+                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "3":
+                    Scorer.DeliveryRuns = 3;
+                    Scorer.RecordRunsHit();
+                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "other":
                     break;

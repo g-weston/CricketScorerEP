@@ -15,9 +15,7 @@ namespace CricketScorerEP
 
 		protected override void OnStart ()
 		{
-		    // Handle when your app starts
-            var match   = new Match();
-		    var innings = new Innings();  
+		    // Handle when your app starts 
         }
 
 		protected override void OnSleep ()

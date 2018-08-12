@@ -2,18 +2,18 @@
 
 namespace CricketScorerEP
 {
-    public class Innings
+    public static class Innings
     {
-        public int Runs { get; set; }
-        public int Byes { get; set; }
-        public int LegByes {get; set; }
-        public int Wides {get; set; }
-        public int NoBalls {get; set; }
-        public int Overs {get; set; }
-        public int Wickets {get; set; }
-        public int ScheduledOvers { get; set; }
+        public static int Runs { get; set; }
+        public static int Byes { get; set; }
+        public static int LegByes {get; set; }
+        public static int Wides {get; set; }
+        public static int NoBalls {get; set; }
+        public static int Overs {get; set; }
+        public static int Wickets {get; set; }
+        public static int ScheduledOvers { get; set; }
 
-        public Innings()
+ /*       public Innings()
 	    {
             Runs = 0;
             Byes = 0;
@@ -23,6 +23,6 @@ namespace CricketScorerEP
             Overs = 0;
             Wickets = 0;
             ScheduledOvers = 0;
-        }
+        }*/
     }
 }
