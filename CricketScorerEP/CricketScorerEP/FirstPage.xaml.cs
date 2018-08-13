@@ -44,26 +44,19 @@ namespace CricketScorerEP
             {
                 case "1":
                     Scorer.DeliveryRuns = 1;
-                    Scorer.RecordRunsHit();
-                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-   //                 await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     //TotalScore
                     break;
                 case "2":
                     Scorer.DeliveryRuns = 2;
-                    Scorer.RecordRunsHit();
-                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-  //                  await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "3":
                     Scorer.DeliveryRuns = 3;
-                    Scorer.RecordRunsHit();
-                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-   //                 await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "other":
                     break;
             }
+            Scorer.RecordRunsHit();
+            ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
         }
         async void WicketClicked(object sender, EventArgs e)
         {
@@ -71,7 +64,6 @@ namespace CricketScorerEP
             switch (wayOut)
             {
                 case "Bowled":
-                    //RecordFallenWicket();
                     break;
                 case "Caught":
                     break;
@@ -98,6 +90,8 @@ namespace CricketScorerEP
                     }
                     break;
             }
+            Scorer.RecordWicketTaken();
+            ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
         }
         async void NoBallClicked(object sender, EventArgs e)
         {

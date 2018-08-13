@@ -149,14 +149,6 @@ namespace CricketScorerEP
             return;
         }
 
-        public static int BallsFaced = 0;
-        public static int DeliveryRuns = 1;
-        public static void RecordRunsHit()
-        {
-            Innings.Runs = Innings.Runs + DeliveryRuns;
-           // BallsFaced
-        }
-
         static void Main(string[] args)
         {
             // struct opening and continuing as a struct out of a list not in one. creating errors in toher parth of the code
@@ -393,6 +385,25 @@ namespace CricketScorerEP
             // (1) Run through all options in the program (wickets, runs, byes, noballs + runs etc. etc.)
             // (2) Take a paper scorebook from this season, and follow it through the game
             // (3) Score a real match!
+        }
+        public static string NextBowler;
+
+        public static void NextOverBowler()
+        {
+
+        }
+
+        public static int DeliveryRuns;
+        public static void RecordRunsHit()
+        {
+            Innings.Runs = Innings.Runs + DeliveryRuns;
+        }
+
+        public static char DeliveryWayOut;
+
+        public static void RecordWicketTaken()
+        {
+            Innings.Wickets++;
         }
     }
 }
