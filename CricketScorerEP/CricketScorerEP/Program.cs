@@ -154,7 +154,7 @@ namespace CricketScorerEP
         public static void RecordRunsHit()
         {
             Innings.Runs = Innings.Runs + DeliveryRuns;
-            BallsFaced
+           // BallsFaced
         }
 
         static void Main(string[] args)

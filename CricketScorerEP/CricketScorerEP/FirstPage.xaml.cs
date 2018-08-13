@@ -17,56 +17,10 @@ namespace CricketScorerEP
 		{
 			InitializeComponent();
 		    BindingContext = this;
-		    
-
         }
 
-        
-
-        public class ScoreHeaderCreator : INotifyPropertyChanged
-        {
-            private string totalScore;
-            // Declare the event
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            public ScoreHeaderCreator()
-            {
-                totalScore = "TEXT";
-            }
-
-            public ScoreHeaderCreator(string value)
-            {
-                this.totalScore = value;
-            }
-
-            public string ScoreHeaderTotalScore
-            {
-                get { return totalScore; }
-                set
-                {
-                    totalScore = value;
-                    // Call OnPropertyChanged whenever the property is updated
-                    OnPropertyChanged("scoreHeaderTotalScore");
-                }
-            }
-
-            // Create the OnPropertyChanged method to raise the event
-            protected void OnPropertyChanged(string totalScore)
-            {
-                PropertyChangedEventHandler handler = PropertyChanged;
-                if (handler != null)
-                {
-                    handler(this, new PropertyChangedEventArgs(totalScore));
-                }
-            }
-        }
-        
- 
-
-        //public string ScoreHeader { get; set; } = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-
-        private string scoreHeader;
-        public string ScoreHeader
+        private string scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+        public string  ScoreHeader
         {
             get
             {
@@ -82,16 +36,6 @@ namespace CricketScorerEP
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null) {
-                PropertyChanged(this,
-                    new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-
         async void RunsClicked(object sender, EventArgs e)
         {
             Scorer.RecordRunsScored();
@@ -101,21 +45,21 @@ namespace CricketScorerEP
                 case "1":
                     Scorer.DeliveryRuns = 1;
                     Scorer.RecordRunsHit();
-                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
-                    TotalScore
+                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+   //                 await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
+                    //TotalScore
                     break;
                 case "2":
                     Scorer.DeliveryRuns = 2;
                     Scorer.RecordRunsHit();
-                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
+                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+  //                  await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "3":
                     Scorer.DeliveryRuns = 3;
                     Scorer.RecordRunsHit();
-                    scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
-                    await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
+                    ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
+   //                 await DisplayAlert("DeliveryRuns", ScoreHeader, "Cancel");
                     break;
                 case "other":
                     break;
