@@ -36,26 +36,49 @@ namespace CricketScorerEP
             }
         }
 
+        private string batsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name;
+        public string BatsmanOne
+        {
+            get
+            {
+                return batsmanOne;
+            }
+            set
+            {
+                if (batsmanOne != value)
+                {
+                    batsmanOne = value;
+                    this.OnPropertyChanged("BatsmanOne");
+                }
+            }
+        }
+
+        private string batsmanOneRuns = Teams.teamOnePlayers[Teams.currentBatsmanOne].RunsScored.ToString();
+        public string BatsmanOneRuns
+        {
+            get
+            {
+                return batsmanOneRuns;
+            }
+            set
+            {
+                if (batsmanOneRuns != value)
+                {
+                    batsmanOneRuns = value;
+                    this.OnPropertyChanged("BatsmanOneRuns");
+                }
+            }
+        }
+
         async void RunsClicked(object sender, EventArgs e)
         {
             Scorer.RecordRunsScored();
-            var runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
-            switch (runsScored)
-            {
-                case "1":
-                    Scorer.DeliveryRuns = 1;
-                    //TotalScore
-                    break;
-                case "2":
-                    Scorer.DeliveryRuns = 2;
-                    break;
-                case "3":
-                    Scorer.DeliveryRuns = 3;
-                    break;
-                case "other":
-                    break;
-            }
+            string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
+            int.TryParse(runsScored, out int runsScoredThisDelivery);
+            Scorer.DeliveryRuns = runsScoredThisDelivery;
             Scorer.RecordRunsHit();
+            Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
+            Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
         }
         async void WicketClicked(object sender, EventArgs e)
@@ -64,6 +87,7 @@ namespace CricketScorerEP
             switch (wayOut)
             {
                 case "Bowled":
+                    //RecordFallenWicket();
                     break;
                 case "Caught":
                     break;

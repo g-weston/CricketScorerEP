@@ -20,10 +20,10 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Label Text="{Binding ScoreHeader}" Grid.Row="0" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
-        FontSize="60" Grid.ColumnSpan="2" />
-                <Label Text="J Bairstow" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                                                    FontSize="60" Grid.ColumnSpan="2" />
+                <Label Text="{Binding BatsmanOne}" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
                        FontSize="30"/>
-                <Label Text="0" Grid.Row="1" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                <Label Text="{Binding BatsmanOneRuns}" Grid.Row="1" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
                        FontSize="30"/>
                 <Label Text="J Root" Grid.Row="2" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
                        FontSize="30"/>

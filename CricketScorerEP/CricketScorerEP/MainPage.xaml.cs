@@ -25,8 +25,10 @@ namespace CricketScorerEP
             switch (loadOption)
             {
                 case "File":
+                    //PopulateTeamFromFile(team1, "TeamOneDefinition.txt");
                     break;
                 case "Input Now":
+                    //PopulateTeamFromConsole(team1);
                     break;
             }
         }
