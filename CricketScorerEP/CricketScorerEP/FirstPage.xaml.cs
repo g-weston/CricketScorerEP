@@ -76,7 +76,7 @@ namespace CricketScorerEP
             string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             int.TryParse(runsScored, out int runsScoredThisDelivery);
             Scorer.DeliveryRuns = runsScoredThisDelivery;
-            Scorer.RecordRunsHit();
+            Scorer.RecordRunsScored();
             Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();

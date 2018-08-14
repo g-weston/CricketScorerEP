@@ -129,12 +129,15 @@ namespace CricketScorerEP
 
         public static void RecordRunsScored()
         {
-
-        }
-        public static void RecordRunsHit()
-        {
             Innings.Runs += DeliveryRuns;
             // BallsFaced
+        }
+
+        public static char DeliveryWayOut;
+
+        public static void RecordWicketTaken()
+        {
+            Innings.Wickets++;
         }
 
         static void WriteScorecard(string filename)
@@ -409,24 +412,6 @@ namespace CricketScorerEP
             // (2) Take a paper scorebook from this season, and follow it through the game
             // (3) Score a real match!
         }
-        public static string NextBowler;
-
-        public static void NextOverBowler()
-        {
-
-        }
-
-        public static int DeliveryRuns;
-        public static void RecordRunsHit()
-        {
-            Innings.Runs = Innings.Runs + DeliveryRuns;
-        }
-
-        public static char DeliveryWayOut;
-
-        public static void RecordWicketTaken()
-        {
-            Innings.Wickets++;
-        }
+  
     }
 }
