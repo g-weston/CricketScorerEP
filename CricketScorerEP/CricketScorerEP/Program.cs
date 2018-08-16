@@ -27,7 +27,7 @@ namespace CricketScorerEP
 
     public static class Scorer
     {
-        static void PopulateTeamFromFile(int teamNumber, string filename)
+        public static void PopulateTeamFromFile(int teamNumber, string filename)
         {
             List<string> fileContents = new List<string>();
             System.IO.StreamReader file = new System.IO.StreamReader(filename);
@@ -55,7 +55,7 @@ namespace CricketScorerEP
             file.Close();
         }
 
-        static void PopulateTeamFromConsole(int teamNumber)
+        public static void PopulateTeamFromConsole(int teamNumber)
         {
             string teamName= "one";
             if (teamNumber == 2)

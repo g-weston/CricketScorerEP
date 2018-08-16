@@ -20,15 +20,17 @@ namespace CricketScorerEP
 
         async void TeamLoadOption(object sender, EventArgs e)
         {
+            string team = await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
+            int.TryParse(team, out int teamNumber);
 
             var loadOption = await DisplayActionSheet("Do you want to load the teams from a file or input now?", "Cancel", null, "File", "Input Now");
             switch (loadOption)
             {
                 case "File":
-                    //PopulateTeamFromFile(team1, "TeamOneDefinition.txt");
+                    Scorer.PopulateTeamFromFile(teamNumber, "TeamOneDefinition.txt");
                     break;
                 case "Input Now":
-                    //PopulateTeamFromConsole(team1);
+                    Scorer.PopulateTeamFromConsole(teamNumber);
                     break;
             }
         }
