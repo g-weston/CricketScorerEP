@@ -27,8 +27,13 @@ namespace CricketScorerEP
 
     public static class Scorer
     {
-        public static void PopulateTeamFromFile(int teamNumber, string filename)
+        public static void PopulateTeamFromFile(int teamNumber)
         {
+            string teamNumberWord = "One";
+            if (teamNumber == 2)
+                teamNumberWord = "Two";;
+
+            string filename = "Team" + teamNumberWord + "Definition.txt";
             List<string> fileContents = new List<string>();
             System.IO.StreamReader file = new System.IO.StreamReader(filename);
             string line;
@@ -188,8 +193,8 @@ namespace CricketScorerEP
             int team1 = 1, team2 = 2;
             if (inputChoice == "F")
             {
-                PopulateTeamFromFile(team1, "TeamOneDefinition.txt");
-                PopulateTeamFromFile(team2, "TeamTwoDefinition.txt");
+                PopulateTeamFromFile(team1);
+                PopulateTeamFromFile(team2);
                 ReadMatchDetails("MatchDefinition.txt");
                 Innings.ScheduledOvers = Match.ScheduledOvers;
             }

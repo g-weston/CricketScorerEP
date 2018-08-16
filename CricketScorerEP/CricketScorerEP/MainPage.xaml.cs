@@ -27,7 +27,8 @@ namespace CricketScorerEP
             switch (loadOption)
             {
                 case "File":
-                    Scorer.PopulateTeamFromFile(teamNumber, "TeamOneDefinition.txt");
+                  //  string directory = System.IO.Directory.GetCurrentDirectory();
+                    Scorer.PopulateTeamFromFile(teamNumber);
                     break;
                 case "Input Now":
                     Scorer.PopulateTeamFromConsole(teamNumber);
