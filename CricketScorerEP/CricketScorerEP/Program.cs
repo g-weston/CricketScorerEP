@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace CricketScorerEP
@@ -34,8 +35,11 @@ namespace CricketScorerEP
                 teamNumberWord = "Two";;
 
             string filename = "Team" + teamNumberWord + "Definition.txt";
+            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            string fileNameWithPath = Path.Combine(pathFile.ToString(),filename);
             List<string> fileContents = new List<string>();
-            System.IO.StreamReader file = new System.IO.StreamReader(filename);
+            StreamReader file = new StreamReader(fileNameWithPath);
+   
             string line;
             while ((line = file.ReadLine()) != null)
             {
@@ -58,7 +62,7 @@ namespace CricketScorerEP
                     Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName));
             }
             file.Close();
-        }
+            }
 
         public static void PopulateTeamFromConsole(int teamNumber)
         {

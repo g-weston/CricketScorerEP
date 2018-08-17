@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Xamarin.Forms;
 
 
@@ -27,21 +28,20 @@ namespace CricketScorerEP
             switch (loadOption)
             {
                 case "File":
-                  //  string directory = System.IO.Directory.GetCurrentDirectory();
-                    Scorer.PopulateTeamFromFile(teamNumber);
+                    try
+                    {
+                        Scorer.PopulateTeamFromFile(teamNumber);
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Unhandled exception", ex.Message, "cancel");
+                    }
+ 
                     break;
                 case "Input Now":
                     Scorer.PopulateTeamFromConsole(teamNumber);
                     break;
             }
         }
-
-        /*protected void OnStart()
-        {
-            StartUp();
-        }*/
-
-
-        // ask further question if answer is yes to the pop up above to see how many byes
     }
 }
