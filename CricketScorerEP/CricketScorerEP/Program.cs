@@ -18,8 +18,8 @@ namespace CricketScorerEP
 
     public static class Teams
     {
-        public static List<Player> teamOnePlayers;
-        public static List<Player> teamTwoPlayers;
+        public static List<Player> teamOnePlayers = new List<Player>();
+        public static List<Player> teamTwoPlayers = new List<Player>();
         public static int currentBatsmanOne = 0, currentBatsmanTwo = 1;
         public static int batsmanFacing = currentBatsmanOne;
         public static int batsmanNotFacing = currentBatsmanTwo;
@@ -49,9 +49,9 @@ namespace CricketScorerEP
             int.TryParse(fileContents[1], out int numberOfPlayers);
             string[] lineContents = { };
             string forename, surname, playerName;
-            for (int i = 2; i < numberOfPlayers + 2; i++)
+            for (int i = 0; i < numberOfPlayers; i++)
             {
-                lineContents = fileContents[i].Split(' ');
+                lineContents = fileContents[i+2].Split(' ');
                 int.TryParse(lineContents[0], out int playerId);
                 forename = lineContents[1];
                 surname = lineContents[2];
@@ -62,7 +62,7 @@ namespace CricketScorerEP
                     Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName));
             }
             file.Close();
-            }
+        }
 
         public static void PopulateTeamFromConsole(int teamNumber)
         {

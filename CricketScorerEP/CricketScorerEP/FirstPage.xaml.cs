@@ -72,12 +72,12 @@ namespace CricketScorerEP
 
         async void RunsClicked(object sender, EventArgs e)
         {
-            Scorer.RecordRunsScored();
             string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             int.TryParse(runsScored, out int runsScoredThisDelivery);
             Scorer.DeliveryRuns = runsScoredThisDelivery;
             Scorer.RecordRunsScored();
             Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
+            BatsmanOneRuns = Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored.ToString();
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
         }
