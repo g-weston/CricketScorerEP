@@ -35,7 +35,7 @@
                        FontSize="30"/>
                 <Button Text = "RUNS" Grid.Row="4" Grid.Column="0" Clicked="RunsClicked" />
                 <Button Text = "BOUNDARY" Grid.Row="4" Grid.Column="1" Clicked="BoundaryClicked" />
-                <Button Text = "DOT" Grid.Row="5" Grid.Column="0" />
+                <Button Text = "DOT" Grid.Row="5" Grid.Column="0" Clicked="DotClicked"/>
                 <Button Text = "WICKET" Grid.Row="5" Grid.Column="1" Clicked="WicketClicked" />
                 <Button Text = "WIDE" Grid.Row="6" Grid.Column="0" Clicked="WideClicked"/>
                 <Button Text = "NO BALL" Grid.Row="6" Grid.Column="1" Clicked="NoBallClicked"/>

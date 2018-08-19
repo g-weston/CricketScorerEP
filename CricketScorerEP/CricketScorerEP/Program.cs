@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using Xamarin.Forms;
 
 namespace CricketScorerEP
 {
@@ -24,6 +25,8 @@ namespace CricketScorerEP
         public static int batsmanFacing = currentBatsmanOne;
         public static int batsmanNotFacing = currentBatsmanTwo;
         public static int nextBatsman = currentBatsmanTwo + 1;
+        public static int currentBowler = 10;
+        public static int dismissingFielder;
     }
 
     public static class Scorer
@@ -92,7 +95,7 @@ namespace CricketScorerEP
             }
         }
 
-        static void SwapFacingBatsmen(ref int facingBatsman, ref int nonFacingBatsman)
+        public static void SwapFacingBatsmen(ref int facingBatsman, ref int nonFacingBatsman)
         {
             int temp = facingBatsman;
             facingBatsman = nonFacingBatsman;
@@ -125,21 +128,84 @@ namespace CricketScorerEP
             file.Close();
         }
 
-        static void RecordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
+        public static void RecordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
         {
-            Teams.teamOnePlayers[batsmanFacing].DeliveriesFaced++;
+            //Teams.teamOnePlayers[batsmanFacing].DeliveriesFaced++;
             Teams.teamOnePlayers[batsmanFacing].IsOut = true;
             Teams.teamOnePlayers[batsmanFacing].HowOut = (int)Player.DismissalMethod.b;
             Teams.teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
-            Teams.teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
+            //Teams.teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
             batsmanFacing = nextBatsman;
             nextBatsman++;
         }
 
+
         public static void RecordRunsScored()
         {
             Innings.Runs += DeliveryRuns;
-            // BallsFaced
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += DeliveryRuns;
+        }
+
+        public static void RecordByesScored()
+        {
+            Innings.Byes += ByeRuns;
+            Innings.Runs += ByeRuns;
+        }
+
+        public static void RecordLegByesScored()
+        {
+            Innings.LegByes += LegByeRuns;
+            Innings.Runs += LegByeRuns;
+        }
+
+        public static void RecordNoBall()
+        {
+            Innings.Runs++;
+            Innings.NoBalls++;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
+        }
+
+        
+        /*
+        async void ChangeBowler(object sender, EventArgs e)
+        {
+
+            
+            Picker bowlerPicker = new Picker
+            {
+                Title = "Next Bowler",
+                VerticalOptions = LayoutOptions.CenterAndExpand
+            };
+            for (int i = 0; i < Teams.teamTwoPlayers.Count; i++)
+            {
+                bowlerPicker.Items.Add(Teams.teamTwoPlayers[i].Name);
+            }
+
+            bowlerPicker.SelectedIndexChanged += (sender, args) =>
+            {
+                if (bowlerPicker.SelectedIndex == -1)
+                {
+                    //boxView.Color = Color.Default;
+                }
+                else
+                {
+                    string newBowler = bowlerPicker.Items[bowlerPicker.SelectedIndex];
+                    //boxView.Color = nameToColor[colorName];
+                    
+                }
+            };
+
+        }
+        */
+
+        public static void UpdateBowlerFigures()
+        {
+            Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.1;
+            if (Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled % 1 == 0.6)
+            {
+                Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.4;
+                //ChangeBowler();
+            }
         }
 
         public static char DeliveryWayOut;
@@ -147,6 +213,9 @@ namespace CricketScorerEP
         public static void RecordWicketTaken()
         {
             Innings.Wickets++;
+            // needs to only add it to the bowler if its the bowlers wicket
+            Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+
         }
 
         static void WriteScorecard(string filename)
@@ -188,7 +257,8 @@ namespace CricketScorerEP
 
         public static int BallsFaced = 0;
         public static int DeliveryRuns = 1;
-
+        public static int ByeRuns = 1;
+        public static int LegByeRuns = 1;
 
         static void Main(string[] args)
         {
