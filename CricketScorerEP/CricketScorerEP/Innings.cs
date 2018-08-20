@@ -9,7 +9,8 @@ namespace CricketScorerEP
         public static int LegByes {get; set; }
         public static int Wides {get; set; }
         public static int NoBalls {get; set; }
-        public static int Overs {get; set; }
+        public static double Overs {get; set; }
+        public static int CompleteOvers { get; set; }
         public static int Wickets {get; set; }
         public static int ScheduledOvers { get; set; }
 

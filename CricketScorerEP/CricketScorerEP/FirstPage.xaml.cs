@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -17,6 +16,45 @@ namespace CricketScorerEP
 		{
 			InitializeComponent();
 		    BindingContext = this;
+        }
+
+        private async void NavigateMainPage()
+        {
+            await Navigation.PushAsync(new MainPage());
+        }
+
+        private string teamNameHeader = Match.HomeTeam;
+        public string TeamNameHeader
+        {
+            get
+            {
+                return teamNameHeader;
+            }
+            set
+            {
+                if (teamNameHeader != value)
+                {
+                    teamNameHeader = value;
+                    this.OnPropertyChanged("TeamNameHeader");
+                }
+            }
+        }
+
+        private string overHeader = Innings.Overs.ToString();
+        public string OverHeader
+        {
+            get
+            {
+                return overHeader;
+            }
+            set
+            {
+                if (overHeader != value)
+                {
+                    overHeader = value;
+                    this.OnPropertyChanged("OverHeader");
+                }
+            }
         }
 
         private string scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
@@ -141,22 +179,49 @@ namespace CricketScorerEP
             }
         }
 
-        public async void ChangeBowler(object sender, EventArgs e)
+        public void CheckEndOver()
         {
-            var nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[8].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[6].Name);
-            int nextBowlerNumber = 0;
-            for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
+            if (Scorer.validDeliveriesInThisOver == 6)
             {
-                if (Teams.teamOnePlayers[i].Name == nextBowler)
+                Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing); // change of ends
+                
+                /*
+                Console.WriteLine("Which number player is the next bowler?"); // TO DO - perhaps store currentBowler1 and currentBowler2; avoids clicks if they bowl for a spell
+                input = Console.ReadLine();
+                int.TryParse(input, out currentBowler);
+                if (currentBowler > Teams.teamTwoPlayers.Count)
                 {
-                    nextBowlerNumber = i;
+                    Console.WriteLine("Not a valid player number");
                 }
+                */
+                if (Scorer.maiden)
+                {
+                    Teams.teamTwoPlayers[Teams.currentBowler].NumberOfMaidensBowled++;
+                }
+                PickNewBowler();
+                Scorer.validDeliveriesInThisOver = 0;
+                Scorer.maiden = true;
             }
-            Teams.currentBowler = nextBowlerNumber;
+
+            if (Innings.CompleteOvers == Innings.ScheduledOvers)
+            {
+                Scorer.WriteScorecard("Scorecard.html");
+                NavigateMainPage();
+            }
+        }
+
+        public static string nextBowler;
+        public async void PickNewBowler()
+        {
+            //Scorer.ChangeBowler();
+            nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[6].Name);
+            Scorer.ChangeBowler();
+            CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
         }
 
         public void UpdateDisplay()
         {
+            CheckEndOver();
             BatsmanOneRuns = Teams.teamOnePlayers[Teams.currentBatsmanOne].RunsScored.ToString();
             BatsmanTwoRuns = Teams.teamOnePlayers[Teams.currentBatsmanTwo].RunsScored.ToString();
             ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
@@ -164,11 +229,12 @@ namespace CricketScorerEP
                             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfMaidensBowled.ToString() + "-" +
                             Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded.ToString() + "-" +
                             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken.ToString();
+            OverHeader = Innings.Overs.ToString();
         }
 
-        async void DotClicked(object sender, EventArgs e)
+        void DotClicked(object sender, EventArgs e)
         {
-            Scorer.UpdateBowlerFigures();
+            Scorer.UpdateBowlerBalls();
             UpdateDisplay();
         }
 
@@ -178,7 +244,7 @@ namespace CricketScorerEP
             int.TryParse(runsScored, out int runsScoredThisDelivery);
             Scorer.DeliveryRuns = runsScoredThisDelivery;
             Scorer.RecordRunsScored();
-            Scorer.UpdateBowlerFigures();
+            Scorer.UpdateBowlerBalls();
             Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             UpdateDisplay();
@@ -186,7 +252,7 @@ namespace CricketScorerEP
             {
                 Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
             }
-            
+            Scorer.maiden = false;
         }
         async void WicketClicked(object sender, EventArgs e)
         {
@@ -223,7 +289,7 @@ namespace CricketScorerEP
             }
             Scorer.RecordFallenWicket(Teams.batsmanFacing,Teams.teamOnePlayers, Teams.nextBatsman, Teams.currentBowler, Teams.dismissingFielder, Teams.teamTwoPlayers);
             Scorer.RecordWicketTaken();
-            Scorer.UpdateBowlerFigures();
+            Scorer.UpdateBowlerBalls();
             UpdateDisplay();
         }
         async void NoBallClicked(object sender, EventArgs e)
@@ -284,7 +350,7 @@ namespace CricketScorerEP
             int.TryParse(boundaryRuns, out int boundaryRunsThisDelivery);
             Scorer.DeliveryRuns = boundaryRunsThisDelivery;
             Scorer.RecordRunsScored();
-            Scorer.UpdateBowlerFigures();
+            Scorer.UpdateBowlerBalls();
             Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += boundaryRunsThisDelivery;
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             UpdateDisplay();
@@ -324,7 +390,7 @@ namespace CricketScorerEP
                     }
                     break;
             }
-            Scorer.UpdateBowlerFigures();
+            Scorer.UpdateBowlerBalls();
             UpdateDisplay();
         }
         async void WideClicked(object sender, EventArgs e)

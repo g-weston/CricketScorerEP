@@ -49,6 +49,10 @@ namespace CricketScorerEP
                 fileContents.Add(line);
             }
             string clubName = fileContents[0];
+            if (teamNumber == 1)
+                Match.HomeTeam = clubName;
+            else if (teamNumber == 2)
+                Match.AwayTeam = clubName;
             int.TryParse(fileContents[1], out int numberOfPlayers);
             string[] lineContents = { };
             string forename, surname, playerName;
@@ -58,12 +62,13 @@ namespace CricketScorerEP
                 int.TryParse(lineContents[0], out int playerId);
                 forename = lineContents[1];
                 surname = lineContents[2];
-                playerName = forename + ' ' + surname;
+                playerName = forename[0].ToString().ToUpper() + ' ' + surname[0].ToString().ToUpper() + surname.Substring(1);
                 if (teamNumber == 1)
                     Teams.teamOnePlayers.Add(new Player(clubName, playerId, playerName));
                 else if (teamNumber == 2)
                     Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName));
             }
+            
             file.Close();
         }
 
@@ -103,10 +108,13 @@ namespace CricketScorerEP
             return;
         }
 
-        static void ReadMatchDetails(string filename)
+        public static void ReadMatchDetails(string filename)
         {
+            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+
             List<string> fileContents = new List<string>();
-            System.IO.StreamReader file = new System.IO.StreamReader(filename);
+            System.IO.StreamReader file = new System.IO.StreamReader(fileNameWithPath);
 
             string line;
             while ((line = file.ReadLine()) != null)
@@ -198,13 +206,30 @@ namespace CricketScorerEP
         }
         */
 
-        public static void UpdateBowlerFigures()
+        public static void ChangeBowler()
+        {
+            int nextBowlerNumber = 0;
+            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            {
+                if (Teams.teamTwoPlayers[i].Name == FirstPage.nextBowler)
+                {
+                    nextBowlerNumber = i;
+                }
+            }
+            Teams.currentBowler = nextBowlerNumber;
+        }
+
+        public static void UpdateBowlerBalls()
         {
             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.1;
-            if (Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled % 1 == 0.6)
+            validDeliveriesInThisOver++;
+            Innings.Overs += 0.1;
+            if (validDeliveriesInThisOver == 6)
             {
                 Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.4;
-                //ChangeBowler();
+                Innings.Overs += 0.4;
+                Innings.CompleteOvers++;
+                ChangeBowler();
             }
         }
 
@@ -218,9 +243,12 @@ namespace CricketScorerEP
 
         }
 
-        static void WriteScorecard(string filename)
+        public static void WriteScorecard(string filename)
         {
-            System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
+            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+            System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath);
+
             file.WriteLine("<html>");
             file.WriteLine("<body>");
 
@@ -259,6 +287,8 @@ namespace CricketScorerEP
         public static int DeliveryRuns = 1;
         public static int ByeRuns = 1;
         public static int LegByeRuns = 1;
+        public static int validDeliveriesInThisOver = 0;
+        public static bool maiden = true;
 
         static void Main(string[] args)
         {
@@ -289,7 +319,8 @@ namespace CricketScorerEP
             const int runsPerNoBall = 1;*/
 
             bool endOfOver = false; // perhaps an over struct, with members validDeliveries, end of Over?
-            int validDeliveriesInThisOver, runsScoredThisOver;
+     //       int validDeliveriesInThisOver;
+            int runsScoredThisOver;
             string howOut = "";
 
  /*           int currentBatsmanOne = 0, currentBatsmanTwo = 1;
@@ -461,6 +492,7 @@ namespace CricketScorerEP
                     runsScoredThisOver += runsScoredThisDelivery;
                     // TO DO perhaps consolidate the swap batsmen ends here, to avoid having the logic on both runs and wickets?
 
+                    // Static void EndOfOver()
                     if (validDeliveriesInThisOver == 6)
                     {
                         SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing); // change of ends

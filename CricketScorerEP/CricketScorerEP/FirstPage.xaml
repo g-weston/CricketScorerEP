@@ -18,29 +18,35 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Label Text="{Binding ScoreHeader}" Grid.Row="0" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
+                <Label Text="{Binding TeamNameHeader}" Grid.Row="0" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="20" Grid.ColumnSpan="2"/>
+                <Label Text="{Binding ScoreHeader}" Grid.Row="0" Grid.Column="2" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
                                                     FontSize="60" Grid.ColumnSpan="2" />
-                <Label Text="{Binding BatsmanOne}" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
-                       FontSize="30"/>
-                <Label Text="{Binding BatsmanOneRuns}" Grid.Row="1" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                <Label Text="{Binding OverHeader}" Grid.Row="1" Grid.Column="3" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
+                       FontSize="30" />
+                <Label Text="{Binding BatsmanOne}" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="End" TextColor="Black"
+                       FontSize="30" Grid.ColumnSpan="2"/>
+                <Label Text="{Binding BatsmanOneRuns}" Grid.Row="1" Grid.Column="2" HorizontalTextAlignment="Start" VerticalTextAlignment="End" TextColor="Black"
                        FontSize="30"/>
                 <Label Text="{Binding BatsmanTwo}" Grid.Row="2" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
-                       FontSize="30"/>
-                <Label Text="{Binding BatsmanTwoRuns}" Grid.Row="2" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30" Grid.ColumnSpan="2"/>
+                <Label Text="{Binding BatsmanTwoRuns}" Grid.Row="2" Grid.Column="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
                        FontSize="30"/>
                 <Label Text="{Binding CurrentBowler}" Grid.Row="3" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
-                       FontSize="30"/>
-                <Label Text="{Binding BowlerFigures}" Grid.Row="3" Grid.Column="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
-                       FontSize="30"/>
-                <Button Text = "RUNS" Grid.Row="4" Grid.Column="0" Clicked="RunsClicked" />
-                <Button Text = "BOUNDARY" Grid.Row="4" Grid.Column="1" Clicked="BoundaryClicked" />
-                <Button Text = "DOT" Grid.Row="5" Grid.Column="0" Clicked="DotClicked"/>
-                <Button Text = "WICKET" Grid.Row="5" Grid.Column="1" Clicked="WicketClicked" />
-                <Button Text = "WIDE" Grid.Row="6" Grid.Column="0" Clicked="WideClicked"/>
-                <Button Text = "NO BALL" Grid.Row="6" Grid.Column="1" Clicked="NoBallClicked"/>
-                <Button Text = "BYES/LEGBYES" Grid.Row="7" Grid.Column="0" Clicked="ByesClicked" />
-                <Button Text = "SETTINGS/OVERRULE" Grid.Row="7" Grid.Column="1"/>
+                       FontSize="30" Grid.ColumnSpan="2"/>
+                <Label Text="{Binding BowlerFigures}" Grid.Row="3" Grid.Column="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" TextColor="Black"
+                       FontSize="30" Grid.ColumnSpan="2"/>
+                <Button Text = "RUNS" Grid.Row="4" Grid.Column="0" Clicked="RunsClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "BOUNDARY" Grid.Row="4" Grid.Column="2" Clicked="BoundaryClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "DOT" Grid.Row="5" Grid.Column="0" Clicked="DotClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "WICKET" Grid.Row="5" Grid.Column="2" Clicked="WicketClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "WIDE" Grid.Row="6" Grid.Column="0" Clicked="WideClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "NO BALL" Grid.Row="6" Grid.Column="2" Clicked="NoBallClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "BYES/LEGBYES" Grid.Row="7" Grid.Column="0" Clicked="ByesClicked" Grid.ColumnSpan="2"/>
+                <Button Text = "SETTINGS/OVERRULE" Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="2"/>
             </Grid>
         </StackLayout>
     </ContentPage.Content>

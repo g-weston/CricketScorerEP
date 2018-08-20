@@ -21,10 +21,14 @@ namespace CricketScorerEP
 
         async void TeamLoadOption(object sender, EventArgs e)
         {
-            string team = await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
+            Scorer.ReadMatchDetails("MatchDefinition.txt");
+            Innings.ScheduledOvers = Match.ScheduledOvers;
+            string team =
+                await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
             int.TryParse(team, out int teamNumber);
 
-            var loadOption = await DisplayActionSheet("Do you want to load the teams from a file or input now?", "Cancel", null, "File", "Input Now");
+            var loadOption = await DisplayActionSheet("Do you want to load the teams from a file or input now?",
+                "Cancel", null, "File", "Input Now");
             switch (loadOption)
             {
                 case "File":
@@ -36,7 +40,7 @@ namespace CricketScorerEP
                     {
                         await DisplayAlert("Unhandled exception", ex.Message, "cancel");
                     }
- 
+
                     break;
                 case "Input Now":
                     Scorer.PopulateTeamFromConsole(teamNumber);
