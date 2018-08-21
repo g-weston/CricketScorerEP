@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Android.Support.Design.Widget;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -74,7 +75,7 @@ namespace CricketScorerEP
             }
         }
 
-        private string batsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name;
+        private string batsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
         public string BatsmanOne
         {
             get
@@ -179,6 +180,20 @@ namespace CricketScorerEP
             }
         }
 
+        public void SwapStar()
+        {
+            if (Teams.batsmanFacing == Teams.currentBatsmanOne)
+            {
+                BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
+                BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name;
+            }
+            else if (Teams.batsmanFacing == Teams.currentBatsmanTwo)
+            {
+                BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name;
+                BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
+            }
+        }
+
         public void CheckEndOver()
         {
             if (Scorer.validDeliveriesInThisOver == 6)
@@ -205,7 +220,7 @@ namespace CricketScorerEP
 
             if (Innings.CompleteOvers == Innings.ScheduledOvers)
             {
-                Scorer.WriteScorecard("Scorecard.html");
+                Scorer.WriteScorecard();
                 NavigateMainPage();
             }
         }
@@ -222,6 +237,7 @@ namespace CricketScorerEP
         public void UpdateDisplay()
         {
             CheckEndOver();
+            SwapStar();
             BatsmanOneRuns = Teams.teamOnePlayers[Teams.currentBatsmanOne].RunsScored.ToString();
             BatsmanTwoRuns = Teams.teamOnePlayers[Teams.currentBatsmanTwo].RunsScored.ToString();
             ScoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
@@ -230,6 +246,7 @@ namespace CricketScorerEP
                             Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded.ToString() + "-" +
                             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken.ToString();
             OverHeader = Innings.Overs.ToString();
+            
         }
 
         void DotClicked(object sender, EventArgs e)
@@ -247,82 +264,134 @@ namespace CricketScorerEP
             Scorer.UpdateBowlerBalls();
             Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-            UpdateDisplay();
             if (runsScoredThisDelivery % 2 == 1)
             {
                 Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
             }
             Scorer.maiden = false;
+            UpdateDisplay();
         }
+
+        
+        public async void DismissingFielder()
+        {
+            //use picker to display all fielders on the pitch apart from the current bowler
+            string dismissingWicketFielder = await DisplayActionSheet("Which fielder?", null, null,
+                Teams.teamTwoPlayers[8].Name);
+            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            {
+                if (Teams.teamTwoPlayers[i].Name == dismissingWicketFielder)
+                {
+                    Teams.wicketFielder = i;
+                }
+            }
+        }
+
+        async void WhichBatsmanOut()
+        {
+            var batOut = await DisplayActionSheet("Which batsman was out?", null, null,
+                Teams.teamOnePlayers[Teams.batsmanFacing].Name, Teams.teamOnePlayers[Teams.batsmanNotFacing].Name);
+        }
+
         async void WicketClicked(object sender, EventArgs e)
         {
             var wayOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
             switch (wayOut)
             {
                 case "Bowled":
-                    //RecordFallenWicket();
+                    //Scorer.RecordFallenWicket(Teams.batsmanFacing, Teams.teamOnePlayers, Teams.nextBatsman, Teams.currentBowler, Teams.dismissingFielder, Teams.teamTwoPlayers);
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "b";
                     break;
                 case "Caught":
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "c";
+                    DismissingFielder();
+                    
                     break;
                 case "LBW":
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "l";
                     break;
                 case "Run Out":
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "ro";
+                    DismissingFielder();
                     break;
                 case "Stumped":
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "s";
+                    
                     break;
                 case "Other":
                     var otherWaysOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Hit Wicket", "Handled Ball", "Obstruction", "Hit Twice", "Timed Out");
                     switch (otherWaysOut)
                     {
                         case "Hit Wicket":
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "hw";
                             break;
                         case "Handled Ball":
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "hb";
                             break;
                         case "Obstruction":
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "o";
                             break;
                         case "Hit Twice":
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "ht";
                             break;
                         case "Timed Out":
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "to";
                             break;
                     }
                     break;
             }
-            Scorer.RecordFallenWicket(Teams.batsmanFacing,Teams.teamOnePlayers, Teams.nextBatsman, Teams.currentBowler, Teams.dismissingFielder, Teams.teamTwoPlayers);
-            Scorer.RecordWicketTaken();
+            Scorer.RecordFallenWicket();
+            if (Teams.teamOnePlayers[Teams.currentBatsmanOne].IsOut)
+            {
+                Teams.currentBatsmanOne = Teams.nextBatsman;
+                BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
+            }
+            else if (Teams.teamOnePlayers[Teams.currentBatsmanTwo].IsOut)
+            {
+                Teams.currentBatsmanTwo = Teams.nextBatsman;
+                BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
+            }
+            Teams.nextBatsman++;
+            //Scorer.RecordWicketTaken();
             Scorer.UpdateBowlerBalls();
             UpdateDisplay();
         }
         async void NoBallClicked(object sender, EventArgs e)
         {
 
-            var anyRunsNoBall = await DisplayActionSheet("Were there any runs scored off the no ball?", "Cancel", null, "Yes", "No");
+            var anyRunsNoBall = await DisplayActionSheet("Were there any runs scored off the bat this no ball?", "Cancel", null, "Yes", "No");
 
             switch (anyRunsNoBall)
             {
                 case "Yes":
                     var runsOffNoBall = await DisplayActionSheet("How many runs were scored off the no ball?", "Cancel",
                         null, "1", "2", "3", "4", "6", "other");
+                    
                     int.TryParse(runsOffNoBall, out int noBallRunsThisDelivery);
-                    Scorer.DeliveryRuns = noBallRunsThisDelivery;
-                    Scorer.RecordRunsScored();
-                    Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += noBallRunsThisDelivery;
-                    if (noBallRunsThisDelivery == 4)
+                    var typeRunsOffNoBall = await DisplayActionSheet("How were the runs scored?", "Cancel", null, "Off the bat", "Byes", "Leg byes");
+                    switch (typeRunsOffNoBall)
                     {
-                        var boundaryOrNotFour = await DisplayActionSheet("Was the 4 a boundary?", "Cancel", null, "Yes", "No");
-                        switch (boundaryOrNotFour)
-                        {
-                            case "Yes":
-                                Teams.teamOnePlayers[Teams.batsmanFacing].NumberOfFoursScored++;
-                                break;
-                            case "No":
-                                break;
-                        }
-                    }
+                        case ("Off the bat"):
+                            Scorer.DeliveryRuns = noBallRunsThisDelivery;
+                            Scorer.RecordRunsOffNoBall();
+                            Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += noBallRunsThisDelivery;
+                            if (noBallRunsThisDelivery == 4)
+                            {
+                                var boundaryOrNotFour = await DisplayActionSheet("Was the 4 a boundary?", "Cancel", null, "Yes", "No");
+                                switch (boundaryOrNotFour)
+                                {
+                                    case "Yes":
+                                        Teams.teamOnePlayers[Teams.batsmanFacing].NumberOfFoursScored++;
+                                        break;
+                                    case "No":
+                                        break;
+                                }
+                            }
 
-                    if (noBallRunsThisDelivery == 6)
-                    {
-                        var boundaryOrNotSix = await DisplayActionSheet("Was the 6 a boundary?", "Cancel", null, "Yes", "No");
-                            switch (boundaryOrNotSix)
+                            if (noBallRunsThisDelivery == 6)
+                            {
+                                var boundaryOrNotSix = await DisplayActionSheet("Was the 6 a boundary?", "Cancel", null, "Yes", "No");
+                                switch (boundaryOrNotSix)
                                 {
                                     case "Yes":
                                         Teams.teamOnePlayers[Teams.batsmanFacing].NumberOfSixesScored++;
@@ -330,7 +399,20 @@ namespace CricketScorerEP
                                     case "No":
                                         break;
                                 }
+                            }
+                            
+                            break;
+                        case ("Byes"):
+                            Scorer.ByesOffNoBall = noBallRunsThisDelivery;
+                            Scorer.RecordByesOffNoBall();
+                            break;
+                        case ("Leg byes"):
+                            Scorer.LegByesOffNoBall = noBallRunsThisDelivery;
+                            Scorer.RecordLegByesOffNoBall();
+                            break;
                     }
+                    
+                    
                     if (noBallRunsThisDelivery % 2 == 1)
                     {
                         Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
@@ -395,29 +477,24 @@ namespace CricketScorerEP
         }
         async void WideClicked(object sender, EventArgs e)
         {
-
-            var byesOffWide = await DisplayActionSheet("Were there any byes ran off the wide?", "Cancel", null, "Yes", "No");
+            Scorer.RecordWide();
+            var byesOffWide = await DisplayActionSheet("Were there any byes taken off the wide?", "Cancel", null, "Yes", "No");
             switch (byesOffWide)
             {
                 case "Yes":
                     var howManyByesOffWide = await DisplayActionSheet("How many byes came off the Wide?", "Cancel", null, "1", "2", "3", "4", "other");
-                    switch (howManyByesOffWide)
+                    int.TryParse(howManyByesOffWide, out int byesOffWideThisDelivery);
+                    Scorer.ByesOffWide = byesOffWideThisDelivery;
+                    Scorer.RecordByesOffWide();
+                    if (byesOffWideThisDelivery % 2 == 1)
                     {
-                        case "1":
-                            break;
-                        case "2":
-                            break;
-                        case "3":
-                            break;
-                        case "4":
-                            break;
-                        case "other":
-                            break;
+                        Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     }
                     break;
                 case "No":
                     break;
             }
+            UpdateDisplay();
         }
     }
 }

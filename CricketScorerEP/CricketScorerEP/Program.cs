@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+// using System.Web.UI;
 using System.Collections.Generic;
+using Android.App;
 using Xamarin.Forms;
 
 namespace CricketScorerEP
@@ -27,6 +29,7 @@ namespace CricketScorerEP
         public static int nextBatsman = currentBatsmanTwo + 1;
         public static int currentBowler = 10;
         public static int dismissingFielder;
+        public static int wicketFielder;
     }
 
     public static class Scorer
@@ -136,15 +139,53 @@ namespace CricketScorerEP
             file.Close();
         }
 
-        public static void RecordFallenWicket(int batsmanFacing, List<Player> teamOnePlayers, int nextBatsman, int currentBowler, int dismissingFielder, List<Player> teamTwoPlayers)
+        public static void RecordFallenWicket()
         {
-            //Teams.teamOnePlayers[batsmanFacing].DeliveriesFaced++;
-            Teams.teamOnePlayers[batsmanFacing].IsOut = true;
-            Teams.teamOnePlayers[batsmanFacing].HowOut = (int)Player.DismissalMethod.b;
-            Teams.teamOnePlayers[batsmanFacing].DismissingBowler = currentBowler;
+            Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
+            Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
+            //Teams.teamOnePlayers[batsmanFacing].HowOut = (int)Player.DismissalMethod.b;
+            
+            Innings.Wickets++;
             //Teams.teamTwoPlayers[currentBowler].NumberOfWicketsTaken++;
-            batsmanFacing = nextBatsman;
-            nextBatsman++;
+
+            switch (Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay)
+            {
+                case ("b"):
+                    Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
+                    break;
+                case ("c"):
+                    Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.wicketFielder;
+                    break;
+
+                case ("l"):
+                    Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
+                    break;
+                case ("ro"):
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.wicketFielder;
+                    break;
+                case ("s"):
+                    Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
+                    //Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = keeper;
+                    // use the player listed as the keeper to take the dismissing fielder input
+                    break;
+                case ("hw"):
+                    break;
+                case ("hb"):
+                    break;
+                case ("o"):
+                    break;
+                case ("ht"):
+                    break;
+                case ("to"):
+                    break;
+            }
+            Teams.batsmanFacing = Teams.nextBatsman;
+            
         }
 
 
@@ -173,7 +214,50 @@ namespace CricketScorerEP
             Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
         }
 
-        
+        public static void RecordRunsOffNoBall()
+        {
+            Innings.Runs += DeliveryRuns;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += DeliveryRuns;
+        }
+
+        public static void RecordByesOffNoBall()
+        {
+            
+            Innings.Runs += ByesOffNoBall;
+            Innings.NoBalls += ByesOffNoBall;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += ByesOffNoBall;
+            Teams.teamTwoPlayers[Teams.currentBowler].NoBallsDelivered += ByesOffNoBall;
+        }
+
+        public static void RecordLegByesOffNoBall()
+        {
+            
+            Innings.Runs += LegByesOffNoBall;
+            Innings.NoBalls += LegByesOffNoBall;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += LegByesOffNoBall;
+            Teams.teamTwoPlayers[Teams.currentBowler].NoBallsDelivered += LegByesOffNoBall;
+        }
+
+        public static void RecordWide()
+        {
+            Innings.Runs++;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
+            Teams.teamTwoPlayers[Teams.currentBowler].WidesConceded++;
+            Innings.Wides++;
+        }
+
+        public static void RecordByesOffWide()
+        {
+            Innings.Runs += ByesOffWide;
+            Innings.Wides += ByesOffWide;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += ByesOffWide;
+            Teams.teamTwoPlayers[Teams.currentBowler].WidesConceded += ByesOffWide;
+        }
+
+        public static void BowledWicket()
+        {
+
+        }
         /*
         async void ChangeBowler(object sender, EventArgs e)
         {
@@ -235,16 +319,46 @@ namespace CricketScorerEP
 
         public static char DeliveryWayOut;
 
+        /*
         public static void RecordWicketTaken()
         {
             Innings.Wickets++;
             // needs to only add it to the bowler if its the bowlers wicket
             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
 
-        }
+        }*/
 
-        public static void WriteScorecard(string filename)
+        public static void WriteHTMLScorecard()
         {
+            // This will ultimately replace WriteScorecard(), but will be developed in parallel, leaving WriteScorecard() working in the meantime
+            StringWriter stringWriter = new StringWriter();
+          /*  using (HtmlTextWriter writer = new HtmlTextWriter(stringWriter))
+            {
+                writer.RenderBeginTag(HtmlTextWriterTag.Html);
+                writer.RenderBeginTag(HtmlTextWriterTag.Head);
+                writer.RenderBeginTag(HtmlTextWriterTag.Title);
+                writer.Write(this.Title);
+                writer.RenderEndTag();
+                writer.AddAttribute(HtmlTextWriterAttribute.Href, ServerPath + ResetCssUrl);
+                writer.AddAttribute(HtmlTextWriterAttribute.Type, "text/css");
+                writer.AddAttribute(HtmlTextWriterAttribute.Rel, "stylesheet");
+                writer.RenderBeginTag(HtmlTextWriterTag.Link);
+                writer.RenderEndTag();
+                writer.RenderBeginTag(HtmlTextWriterTag.Body);
+                writer.RenderBeginTag(HtmlTextWriterTag.H1);
+                writer.Write(this.Title);
+                writer.RenderEndTag();
+                writer.RenderBeginTag(HtmlTextWriterTag.H2);
+                writer.Write("Standard Operating Procedure");
+                writer.RenderEndTag();
+                writer.RenderBeginTag(HtmlTextWriterTag.Table);
+                writer.RenderBeginTag(HtmlTextWriterTag.Tr); */
+            }
+
+        public static void WriteScorecard()
+        {
+            // This code to find the mobile Download folder is used in several places - perhaps extract to a utility method, and also perhaps think about making the location configurable.
+            string filename = Match.HomeTeam + "v" + Match.AwayTeam + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
             System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath);
@@ -254,24 +368,69 @@ namespace CricketScorerEP
 
             file.WriteLine("<pre>");
             file.WriteLine(Match.Venue);
-            file.WriteLine("Name", "Runs", "4s", "6s", "Balls");
+            // Use HTML <table> with large width for player name and dismissal data, then narrow columns for runs, 4, 6, balls.
+            file.WriteLine("<table>");
+            file.WriteLine("<tr>");
+            file.WriteLine("<th width = 50%>Name</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th>");
+            file.WriteLine("</tr>");
+           // file.WriteLine("Name", "Runs", "4s", "6s", "Balls");
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
+                file.WriteLine("<tr>");
                 if (Teams.teamOnePlayers[i].IsOut)
                 {
-                    file.WriteLine("{0}, Bowled {1}, {2}, {3}, {4}, {5}", Teams.teamOnePlayers[i].Name, Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name,
+                     file.WriteLine("<td width=50%>{0}</td><TD>Bowled</TD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>",
+                                                                          Teams.teamOnePlayers[i].Name, Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name,
                                                                           Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
                                                                           Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    //file.WriteLine("{0}, Bowled {1}, {2}, {3}, {4}, {5}",
                 }
+
                 else
                 {
-                    file.WriteLine("{0}, Not Out {1}, {2}, {3}, {4}", Teams.teamOnePlayers[i].Name,
-                                                                      Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                                                      Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    file.WriteLine("<td width=50%>{0}</td><TD>Not Out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Teams.teamOnePlayers[i].Name,
+                                                                                                Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                                                                                Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                //    file.WriteLine("{0}, Not Out {1}, {2}, {3}, {4}", 
                 }
+                file.WriteLine("</tr>");
             }
-            file.WriteLine("Extras b({0}),lb ({1}),w ({2}),nb ({3}),   {4}", Innings.Byes, Innings.LegByes, Innings.Wides, Innings.NoBalls, 
-                                                                            (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+            file.WriteLine("</table>");
+            // Need a fall of wicket section (Innings class needs new members to store that data)
+            file.WriteLine("Fall of wicket"); // Needs not out batsman score
+
+            file.WriteLine("<table>");
+            file.WriteLine("<tr>");
+            file.WriteLine("<th width = 50%>Name</th><th>Overs</th><th>Maidens</th><th>Runs</th><th>Wickets</th>");
+            file.WriteLine("</tr>");
+           // file.WriteLine("Name", "Overs", "Maidens", "Runs", "Wickets");
+            // Bowling analysis - need another member on player to determine the bowling order
+            for (int i = 0; i < Teams.teamTwoPlayers.Count; i++)
+            {
+                file.WriteLine("<tr>");
+                if (Teams.teamTwoPlayers[i].NumberOfOversBowled > 0)
+                {
+                    file.WriteLine("<td width=50%>{0}</td>Not Out<TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Teams.teamTwoPlayers[i].Name, Teams.teamTwoPlayers[i].NumberOfOversBowled, 
+                                                                        Teams.teamTwoPlayers[i].NumberOfMaidensBowled, Teams.teamTwoPlayers[i].RunsConceded,
+                                                                        Teams.teamTwoPlayers[i].NumberOfWicketsTaken);
+                    //file.WriteLine("{0}, Bowled {1} - {2} - {3} - {4}"
+                }
+                file.WriteLine("</tr>");
+            }
+            file.WriteLine("</table>");
+
+            file.WriteLine("<table>");
+            file.WriteLine("<tr>");
+            file.WriteLine("<th>Byes</th><th>Legbyes</th><th>Wides</th><th>Noballs</th><th>Total</th>");
+            file.WriteLine("</tr>");
+           // file.WriteLine("Byes", "Legbyes", "Wides", "Noballs", "Total");
+            file.WriteLine("<tr>");
+            file.WriteLine("<td width=50%>{0}</td>Not Out<TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Innings.Byes, Innings.LegByes, Innings.Wides, Innings.NoBalls, 
+                                                                                                              (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+            //file.WriteLine("Extras b({0}),lb ({1}),w ({2}),nb ({3}),   {4}"
+            file.WriteLine("</tr>");
+            file.WriteLine("</table>");
+
             file.WriteLine("Total  {0}", Innings.Runs);
             file.WriteLine("</pre>");
 
@@ -289,6 +448,9 @@ namespace CricketScorerEP
         public static int LegByeRuns = 1;
         public static int validDeliveriesInThisOver = 0;
         public static bool maiden = true;
+        public static int ByesOffWide;
+        public static int ByesOffNoBall;
+        public static int LegByesOffNoBall;
 
         static void Main(string[] args)
         {
@@ -516,7 +678,7 @@ namespace CricketScorerEP
         // Here is the scorecard - base it on play-cricket
         // need a WriteScorecard() method, and perhaps WriteBatsman and WriteBowler methods which are invoked in a loop?
         //  Need a game object to cover venue, time of match, format of match, league/cup/friendly etc.  (see file GameDefinition.txt)
-            WriteScorecard("Scorecard.html");
+            WriteScorecard(); // Need to make the filename unique so it doesn't overwrite earlier scorecards
 
             // Testing - 
             // (1) Run through all options in the program (wickets, runs, byes, noballs + runs etc. etc.)
