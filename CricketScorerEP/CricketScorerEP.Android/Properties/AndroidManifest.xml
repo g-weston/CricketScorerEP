@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" package="com.g_weston" android:installLocation="preferExternal" android:versionName="Alpha">
-	<uses-sdk android:minSdkVersion="18" android:targetSdkVersion="27" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" package="com.cricketscorer" android:installLocation="auto" android:versionName="Alpha">
+	<uses-sdk android:minSdkVersion="20" android:targetSdkVersion="27" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<application android:label="Cricket Scorer"></application>
+	<application android:label="CricketScorer" android:icon="@drawable/cricketball"></application>
 </manifest>

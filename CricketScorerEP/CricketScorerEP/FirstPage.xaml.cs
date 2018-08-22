@@ -198,7 +198,7 @@ namespace CricketScorerEP
         {
             if (Scorer.validDeliveriesInThisOver == 6)
             {
-                Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing); // change of ends
+                Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing); // change of ends
                 
                 /*
                 Console.WriteLine("Which number player is the next bowler?"); // TO DO - perhaps store currentBowler1 and currentBowler2; avoids clicks if they bowl for a spell
@@ -220,7 +220,7 @@ namespace CricketScorerEP
 
             if (Innings.CompleteOvers == Innings.ScheduledOvers)
             {
-                Scorer.WriteScorecard();
+                ScorerIO.WriteScorecard();
                 NavigateMainPage();
             }
         }
@@ -266,7 +266,7 @@ namespace CricketScorerEP
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
             if (runsScoredThisDelivery % 2 == 1)
             {
-                Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
+                Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
             }
             Scorer.maiden = false;
             UpdateDisplay();
@@ -300,22 +300,22 @@ namespace CricketScorerEP
             {
                 case "Bowled":
                     //Scorer.RecordFallenWicket(Teams.batsmanFacing, Teams.teamOnePlayers, Teams.nextBatsman, Teams.currentBowler, Teams.dismissingFielder, Teams.teamTwoPlayers);
-                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "b";
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "b";
                     break;
                 case "Caught":
-                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "c";
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "c";
                     DismissingFielder();
                     
                     break;
                 case "LBW":
-                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "l";
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "l";
                     break;
                 case "Run Out":
-                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "ro";
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ro";
                     DismissingFielder();
                     break;
                 case "Stumped":
-                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "s";
+                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "s";
                     
                     break;
                 case "Other":
@@ -323,19 +323,19 @@ namespace CricketScorerEP
                     switch (otherWaysOut)
                     {
                         case "Hit Wicket":
-                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "hw";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "hw";
                             break;
                         case "Handled Ball":
-                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "hb";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "hb";
                             break;
                         case "Obstruction":
-                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "o";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "o";
                             break;
                         case "Hit Twice":
-                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "ht";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ht";
                             break;
                         case "Timed Out":
-                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalWay = "to";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "to";
                             break;
                     }
                     break;
@@ -415,7 +415,7 @@ namespace CricketScorerEP
                     
                     if (noBallRunsThisDelivery % 2 == 1)
                     {
-                        Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
+                        Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     }
                     break;
                 case "NO":
@@ -458,7 +458,7 @@ namespace CricketScorerEP
                     Scorer.RecordByesScored();
                     if (byesThisDelivery % 2 == 1)
                     {
-                        Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
+                        Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     }
                     break;
                 case "Leg Byes":
@@ -468,7 +468,7 @@ namespace CricketScorerEP
                     Scorer.RecordLegByesScored();
                     if (legByesThisDelivery % 2 == 1)
                     {
-                        Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
+                        Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     }
                     break;
             }
@@ -488,7 +488,7 @@ namespace CricketScorerEP
                     Scorer.RecordByesOffWide();
                     if (byesOffWideThisDelivery % 2 == 1)
                     {
-                        Scorer.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
+                        Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     }
                     break;
                 case "No":

@@ -24,6 +24,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Program.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FirstPage.xaml.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ScorerIO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Teams.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)FirstPage.xaml">

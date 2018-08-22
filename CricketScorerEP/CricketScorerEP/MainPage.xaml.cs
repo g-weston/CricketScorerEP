@@ -21,7 +21,7 @@ namespace CricketScorerEP
 
         async void TeamLoadOption(object sender, EventArgs e)
         {
-            Scorer.ReadMatchDetails("MatchDefinition.txt");
+            ScorerIO.ReadMatchDetails("MatchDefinition.txt");
             Innings.ScheduledOvers = Match.ScheduledOvers;
             string team =
                 await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
@@ -34,7 +34,7 @@ namespace CricketScorerEP
                 case "File":
                     try
                     {
-                        Scorer.PopulateTeamFromFile(teamNumber);
+                        ScorerIO.PopulateTeamFromFile(teamNumber);
                     }
                     catch (Exception ex)
                     {
@@ -43,7 +43,7 @@ namespace CricketScorerEP
 
                     break;
                 case "Input Now":
-                    Scorer.PopulateTeamFromConsole(teamNumber);
+                    ScorerIO.PopulateTeamFromConsole(teamNumber);
                     break;
             }
         }

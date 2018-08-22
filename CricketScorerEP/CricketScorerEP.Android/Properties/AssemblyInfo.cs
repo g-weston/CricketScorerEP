@@ -11,10 +11,15 @@ using Android.App;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CricketScorerEP.Android")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
+#if DEBUG
+[assembly: Application(Debuggable = true, Icon = "@drawable/cricketball")]
+#else
+[assembly: Application(Debuggable = false, Icon = "@drawable/cricketball")]
+#endif
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,3 +37,5 @@ using Android.App;
 // Add some common permissions, these can be removed if not needed
 [assembly: UsesPermission(Android.Manifest.Permission.Internet)]
 [assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage)]
+
+

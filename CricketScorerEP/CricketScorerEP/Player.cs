@@ -28,15 +28,15 @@ namespace CricketScorerEP
         public bool IsOut { get; set; }
         public int HowOut { get; set; }
 
-        public string DismissalWay { get; set; }
+        public string DismissalMethod { get; set; }
 
-        public enum DismissalMethod
+      /*  public enum DismissalMethod
         {
             b,
             lbw,
             ct,
             st
-        };
+        };*/
 
         public Dictionary<string, string> Dismissals;
 
@@ -67,7 +67,7 @@ namespace CricketScorerEP
             DismissingBowler = 0;
             DismissingFielder = 0;
 
-            DismissalWay = "";
+            DismissalMethod = "";
         }
     }
  }
