@@ -229,9 +229,17 @@ namespace CricketScorerEP
         public async void PickNewBowler()
         {
             //Scorer.ChangeBowler();
-            nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[6].Name);
+            nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[0].Name,
+                Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name, Teams.teamTwoPlayers[3].Name,
+                Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name, Teams.teamTwoPlayers[6].Name,
+                Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[9].Name,
+                Teams.teamTwoPlayers[10].Name);
             Scorer.ChangeBowler();
             CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
+            BowlerFigures = Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled.ToString() + "-" +
+                            Teams.teamTwoPlayers[Teams.currentBowler].NumberOfMaidensBowled.ToString() + "-" +
+                            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded.ToString() + "-" +
+                            Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken.ToString();
         }
 
         public void UpdateDisplay()
@@ -275,9 +283,12 @@ namespace CricketScorerEP
         
         public async void DismissingFielder()
         {
-            //use picker to display all fielders on the pitch apart from the current bowler
+            //use picker to display all fielders on the pitch
             string dismissingWicketFielder = await DisplayActionSheet("Which fielder?", null, null,
-                Teams.teamTwoPlayers[8].Name);
+                Teams.teamTwoPlayers[0].Name, Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name,
+                Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
+                Teams.teamTwoPlayers[6].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name,
+                Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[10].Name);
             for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
             {
                 if (Teams.teamTwoPlayers[i].Name == dismissingWicketFielder)
@@ -293,6 +304,18 @@ namespace CricketScorerEP
                 Teams.teamOnePlayers[Teams.batsmanFacing].Name, Teams.teamOnePlayers[Teams.batsmanNotFacing].Name);
         }
 
+        
+        public static string nextBatsmanName;
+        async void SelectWhichNewBatsman()
+        {
+            nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null,
+                Teams.teamOnePlayers[0].Name, Teams.teamOnePlayers[1].Name, Teams.teamOnePlayers[2].Name,
+                Teams.teamOnePlayers[3].Name, Teams.teamOnePlayers[4].Name, Teams.teamOnePlayers[5].Name,
+                Teams.teamOnePlayers[6].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[8].Name,
+                Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[10].Name);
+            Scorer.ChangeBatsman();
+        }
+
         async void WicketClicked(object sender, EventArgs e)
         {
             var wayOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
@@ -305,7 +328,6 @@ namespace CricketScorerEP
                 case "Caught":
                     Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "c";
                     DismissingFielder();
-                    
                     break;
                 case "LBW":
                     Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "l";
@@ -316,7 +338,7 @@ namespace CricketScorerEP
                     break;
                 case "Stumped":
                     Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "s";
-                    
+                    // record wicket keeper here
                     break;
                 case "Other":
                     var otherWaysOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Hit Wicket", "Handled Ball", "Obstruction", "Hit Twice", "Timed Out");
@@ -340,6 +362,7 @@ namespace CricketScorerEP
                     }
                     break;
             }
+            SelectWhichNewBatsman();
             Scorer.RecordFallenWicket();
             if (Teams.teamOnePlayers[Teams.currentBatsmanOne].IsOut)
             {
@@ -351,7 +374,7 @@ namespace CricketScorerEP
                 Teams.currentBatsmanTwo = Teams.nextBatsman;
                 BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
             }
-            Teams.nextBatsman++;
+            //Teams.nextBatsman++;
             //Scorer.RecordWicketTaken();
             Scorer.UpdateBowlerBalls();
             UpdateDisplay();

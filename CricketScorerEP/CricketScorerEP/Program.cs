@@ -181,6 +181,19 @@ namespace CricketScorerEP
             Teams.currentBowler = nextBowlerNumber;
         }
 
+        public static void ChangeBatsman()
+        {
+            int nextBatsmanNumber = 0;
+            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            {
+                if (Teams.teamTwoPlayers[i].Name == FirstPage.nextBatsmanName)
+                {
+                    nextBatsmanNumber = i;
+                }
+            }
+            Teams.nextBatsman = nextBatsmanNumber;
+        }
+
         public static void UpdateBowlerBalls()
         {
             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.1;

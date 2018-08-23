@@ -10,7 +10,7 @@ namespace CricketScorerEP
         public static int currentBatsmanOne = 0, currentBatsmanTwo = 1;
         public static int batsmanFacing = currentBatsmanOne;
         public static int batsmanNotFacing = currentBatsmanTwo;
-        public static int nextBatsman = currentBatsmanTwo + 1;
+        public static int nextBatsman;
         public static int currentBowler = 10;
         public static int dismissingFielder;
         public static int wicketFielder;
