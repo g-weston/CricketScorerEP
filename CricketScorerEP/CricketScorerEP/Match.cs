@@ -14,18 +14,6 @@ namespace CricketScorerEP
         public static int ScheduledOvers { get; set; } // 20, 40, 50 etc.
         public static int RunsPerWideOrNoBall { get; set; } // 1 or 2
         public static int RebowlDeliveriesFromOver { get; set; } // From over 1 for Senior, from (e.g) 19 for junior
-
-  /*      public Match()
-        {
-            Date = new DateTime(2018, 06, 30);
-            Competition     = "League";
-            Venue           = "Home";
-            Format          = "Standard";
-            AgeGroup        = "Senior";
-            ScheduledOvers              = 20;
-            RunsPerWideOrNoBall         = 1;
-            RebowlDeliveriesFromOver    = 1;
-        }*/
     }
 }
 

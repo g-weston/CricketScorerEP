@@ -112,6 +112,7 @@ namespace CricketScorerEP
 
         public static void WriteScorecard()
         {
+            // Base this on play-cricket scorecard format
             // This code to find the mobile Download folder is used in several places - perhaps extract to a utility method, and also perhaps think about making the location configurable.
             string filename = Match.HomeTeam + "v" + Match.AwayTeam + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);

@@ -25,7 +25,7 @@
                        FontSize="20" Grid.ColumnSpan="2"/>
                 <Label Text="{Binding ScoreHeader}" Grid.Row="0" Grid.Column="2" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
                                                     FontSize="60" Grid.ColumnSpan="2" />
-                <Label Text="{Binding OverHeader}" Grid.Row="1" Grid.Column="3" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
+                <Label Text="{Binding OversHeader}" Grid.Row="1" Grid.Column="3" HorizontalTextAlignment="End" VerticalTextAlignment="End" TextColor="Black"
                        FontSize="30" />
                 <Label Text="{Binding BatsmanOne}" Grid.Row="1" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="End" TextColor="Black"
                        FontSize="30" Grid.ColumnSpan="2"/>

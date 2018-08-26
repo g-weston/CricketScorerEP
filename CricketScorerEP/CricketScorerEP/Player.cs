@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CricketScorerEP
+﻿namespace CricketScorerEP
 {
     public class Player
     {
@@ -18,6 +15,9 @@ namespace CricketScorerEP
         public int PositionBowling { get; set; }
         public int UniqueId { get; set; }
 
+        public bool IsCaptain { get; set; }
+        public bool IsKeeper { get; set; }
+
         public double NumberOfOversBowled { get; set; }
 
         public string ClubName { get; set; }
@@ -30,22 +30,14 @@ namespace CricketScorerEP
 
         public string DismissalMethod { get; set; }
 
-      /*  public enum DismissalMethod
-        {
-            b,
-            lbw,
-            ct,
-            st
-        };*/
-
-        public Dictionary<string, string> Dismissals;
-
-
         public Player(string clubName, int uniquePlayerId, string playerName)
         {
             ClubName = clubName;
             UniqueId = uniquePlayerId;
             Name = playerName;
+
+            IsCaptain = false;
+            IsKeeper = false;
 
             // starting Score makes sense if a previously retired batsman returns to the crease, but in that instance, we'd need to pass in values for runs, balls faced, 4s, 6s and Time.
             RunsScored = 0;
