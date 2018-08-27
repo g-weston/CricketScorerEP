@@ -21,6 +21,7 @@ namespace CricketScorerEP
 
         async void TeamLoadOption(object sender, EventArgs e)
         {
+            // TODO Have a guard or try/catch in here in case file does not exist (or cannot be read) to avoid exceptions
             ScorerIO.ReadMatchDetails("MatchDefinition.txt");
             Innings.ScheduledOvers = Match.ScheduledOvers;
             string team =

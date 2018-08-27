@@ -84,6 +84,7 @@ namespace CricketScorerEP
 
         public static void ReadMatchDetails(string filename)
         {
+            // TODO guard / try/catch around this if file does not exist, or insufficient permissions granted
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
 
@@ -117,74 +118,92 @@ namespace CricketScorerEP
             string filename = Match.HomeTeam + "v" + Match.AwayTeam + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
-
             System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath);
 
             file.WriteLine("<html>");
             file.WriteLine("<body>");
 
-            file.WriteLine("<pre>");
-            file.WriteLine(Match.Venue);
+            file.WriteLine("<H3>"+Match.Venue+"</H3>");
             // Use HTML <table> with large width for player name and dismissal data, then narrow columns for runs, 4, 6, balls.
             file.WriteLine("<table>");
             file.WriteLine("<tr>");
-            file.WriteLine("<th width = 50%>Name</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th>");
+            file.WriteLine("<th>&nbsp;</th><th width = 25%>Name</th><th width = 25%>How Out</th><th width = 25%>Bowler</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th>");
             file.WriteLine("</tr>");
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
                 file.WriteLine("<tr>");
                 if (Teams.teamOnePlayers[i].IsOut)
                 {
-                    // WriteBatsmanData()
-                    file.WriteLine("<td width=50%>{0}</td><TD>Bowled</TD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>",
-                                                                         Teams.teamOnePlayers[i].Name, Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name,
-                                                                         Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                                                         Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    // TODO Extract WriteBatsmanData() method
+                    // TODO add Captain * and Keeper +
+                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td><td>{7}</TD>",
+                                   Teams.teamOnePlayers[i].Name, Teams.teamOnePlayers[i].DismissalMethod,
+                                   Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].Name,
+                                   Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name,
+                                   Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
                 }
 
+                else if ((i == Teams.currentBatsmanOne) || (i == Teams.currentBatsmanTwo))
+                {
+                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>not out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
+                                   Teams.teamOnePlayers[i].Name, Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                }
                 else
                 {
-                    file.WriteLine("<td width=50%>{0}</td><TD>Not Out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Teams.teamOnePlayers[i].Name,
-                                                                                                Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                                                                                Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>did not bat</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
+                                   Teams.teamOnePlayers[i].Name,Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
                 }
                 file.WriteLine("</tr>");
             }
             file.WriteLine("</table>");
+
+            // Extras
+            file.WriteLine("<table>");
+           // file.WriteLine("<tr>");
+           // file.WriteLine("<th>Byes</th><th>Legbyes</th><th>Wides</th><th>Noballs</th><th>Total</th>");
+           // file.WriteLine("</tr>");
+            file.WriteLine("<tr>");
+            file.WriteLine("<td>b({0})</td><TD>lb({1})</td>,<TD>w({2})</td>,<TD>nb({3})</td>,<TD>{4}</td>", Innings.Byes, Innings.LegByes, Innings.Wides, Innings.NoBalls,
+                                                                                                            (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+            file.WriteLine("</tr>");
+
+            file.WriteLine("<tr>");
+            file.WriteLine("<TD>Total: </TD><TD>{0}</TD>", Innings.Runs);
+            file.WriteLine("</tr>");
+            file.WriteLine("<tr>");
+            file.WriteLine("<TD>{0}</TD>", Innings.Wickets);
+            file.WriteLine("</tr>");
+            file.WriteLine("</table>");
+
             // Need a fall of wicket section (Innings class needs new members to store that data)
-            file.WriteLine("Fall of wicket"); // Needs not out batsman score
+            file.WriteLine("<H4>Fall of wicket</H4>"); // Needs not out batsman score
 
             file.WriteLine("<table>");
             file.WriteLine("<tr>");
-            file.WriteLine("<th width = 50%>Name</th><th>Overs</th><th>Maidens</th><th>Runs</th><th>Wickets</th>");
+            file.WriteLine("<th>Bowler</th><th>Overs</th><th>Maidens</th><th>Runs</th><th>Wickets</th><th>Wides</th><th>No Balls</th>");
             file.WriteLine("</tr>");
-            // Bowling analysis - need another member on player to determine the bowling order
+
+            // TODO Bowling analysis - need another member on player to determine the bowling order
             for (int i = 0; i < Teams.teamTwoPlayers.Count; i++)
             {
                 file.WriteLine("<tr>");
                 if (Teams.teamTwoPlayers[i].NumberOfOversBowled > 0)
                 {
-                    // WriteBowlerData()
-                    file.WriteLine("<td width=50%>{0}</td>Not Out<TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Teams.teamTwoPlayers[i].Name, Teams.teamTwoPlayers[i].NumberOfOversBowled,
-                                                                        Teams.teamTwoPlayers[i].NumberOfMaidensBowled, Teams.teamTwoPlayers[i].RunsConceded,
-                                                                        Teams.teamTwoPlayers[i].NumberOfWicketsTaken);
+                    // TODO Extract WriteBowlerData() method
+                    file.WriteLine("<td>{0}</td><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Teams.teamTwoPlayers[i].Name,
+                                                                                                      Teams.teamTwoPlayers[i].NumberOfOversBowled,
+                                                                                                      Teams.teamTwoPlayers[i].NumberOfMaidensBowled,
+                                                                                                      Teams.teamTwoPlayers[i].RunsConceded,
+                                                                                                      Teams.teamTwoPlayers[i].NumberOfWicketsTaken,
+                                                                                                      Teams.teamTwoPlayers[i].WidesConceded,
+                                                                                                      Teams.teamTwoPlayers[i].NoBallsDelivered);
                 }
                 file.WriteLine("</tr>");
             }
-            file.WriteLine("</table>");
 
-            file.WriteLine("<table>");
-            file.WriteLine("<tr>");
-            file.WriteLine("<th>Byes</th><th>Legbyes</th><th>Wides</th><th>Noballs</th><th>Total</th>");
-            file.WriteLine("</tr>");
-            file.WriteLine("<tr>");
-            file.WriteLine("<td width=50%>{0}</td><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", Innings.Byes, Innings.LegByes, Innings.Wides, Innings.NoBalls,
-                                                                                                       (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
-            file.WriteLine("</tr>");
-            file.WriteLine("</table>");
-
-            file.WriteLine("Total  {0}", Innings.Runs);
-            file.WriteLine("</pre>");
 
             file.WriteLine("</body>");
             file.WriteLine("</html>");
