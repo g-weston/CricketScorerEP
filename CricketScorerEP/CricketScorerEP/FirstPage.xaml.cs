@@ -188,7 +188,7 @@ namespace CricketScorerEP
             }
         }
 
-        public void CheckForEndOfTheOver()
+        void CheckForEndOfTheOver()
         {
             if (Innings.validDeliveriesInThisOver == 6)
             {
@@ -203,7 +203,7 @@ namespace CricketScorerEP
             CheckForEndOfInnings();
         }
 
-        public void CheckForEndOfInnings()
+        void CheckForEndOfInnings()
         {
             if (Innings.CompleteOvers == Innings.ScheduledOvers)
             {
@@ -212,7 +212,7 @@ namespace CricketScorerEP
             }
         }
 
-        public async void PickNewBowler()
+        async void PickNewBowler()
         {
             // Perhaps there should be a "is there a new bowler" question first - if not, go back to whoever was bowling the previous over from the other end
             string nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[0].Name,
@@ -224,15 +224,44 @@ namespace CricketScorerEP
             for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
             {
                 if (Teams.teamTwoPlayers[i].Name == nextBowler)
-                {
                     Teams.currentBowler = i;
-                }
             }
             CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
             UpdateDisplay();
         }
 
-        public void UpdateDisplay()
+        async void SelectNextBatsman()
+        {
+            string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null,
+                                    Teams.teamOnePlayers[0].Name, Teams.teamOnePlayers[1].Name, Teams.teamOnePlayers[2].Name,
+                                    Teams.teamOnePlayers[3].Name, Teams.teamOnePlayers[4].Name, Teams.teamOnePlayers[5].Name,
+                                    Teams.teamOnePlayers[6].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[8].Name,
+                                    Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[10].Name);
+
+            for (int i = 0; i < Teams.teamOnePlayers.Count - 1; i++)
+            {
+                if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
+                    Teams.nextBatsman = i;
+            }
+        }
+
+        async void GetDismissingFielder()
+        {
+            //use picker to display all fielders on the pitch
+            string dismissingWicketFielder = await DisplayActionSheet("Which fielder?", null, null,
+                                            Teams.teamTwoPlayers[0].Name, Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name,
+                                            Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
+                                            Teams.teamTwoPlayers[6].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name,
+                                            Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[10].Name);
+            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            {
+                if (Teams.teamTwoPlayers[i].Name == dismissingWicketFielder)
+                    Teams.dismissingFielder = i;
+            }
+        }
+
+
+        void UpdateDisplay()
         {
             CheckForEndOfTheOver();
             SwapFacingAsteriskInDisplay();
@@ -420,22 +449,6 @@ namespace CricketScorerEP
             }
         }
 
-        public async void GetDismissingFielder()
-        {
-            //use picker to display all fielders on the pitch
-            string dismissingWicketFielder = await DisplayActionSheet("Which fielder?", null, null,
-                Teams.teamTwoPlayers[0].Name, Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name,
-                Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
-                Teams.teamTwoPlayers[6].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name,
-                Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[10].Name);
-            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
-            {
-                if (Teams.teamTwoPlayers[i].Name == dismissingWicketFielder)
-                {
-                    Teams.dismissingFielder = i;
-                }
-            }
-        }
 
         async void DetermineWhichBatsmanIsOut()
         {
@@ -449,7 +462,7 @@ namespace CricketScorerEP
 
         public static bool batsmenCrossedBeforeWicket = false;
         public static int runsScoredBeforeWicket = 0;
-        public async void GetCompletedRunsBeforeWicket()
+        async void GetCompletedRunsBeforeWicket()
         {
             var completedRuns = await DisplayActionSheet("How many runs were completed before the wicket?", null, null,
                                                          "1", "2", "3");
@@ -461,23 +474,6 @@ namespace CricketScorerEP
                 batsmenCrossedBeforeWicket = true;
         }
         
-        async void SelectNextBatsman()
-        {
-            string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null,
-                Teams.teamOnePlayers[0].Name, Teams.teamOnePlayers[1].Name, Teams.teamOnePlayers[2].Name,
-                Teams.teamOnePlayers[3].Name, Teams.teamOnePlayers[4].Name, Teams.teamOnePlayers[5].Name,
-                Teams.teamOnePlayers[6].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[8].Name,
-                Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[10].Name);
-
-            for (int i = 0; i < Teams.teamOnePlayers.Count - 1; i++)
-            {
-                if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
-                {
-                    Teams.nextBatsman = i;
-                }
-            }
-        }
-
         async void WicketClicked(object sender, EventArgs e)
         {
             var howOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
@@ -582,6 +578,5 @@ namespace CricketScorerEP
                 UpdateDisplay();
             }
         }
-
     }
 }
