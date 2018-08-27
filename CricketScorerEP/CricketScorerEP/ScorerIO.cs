@@ -136,7 +136,7 @@ namespace CricketScorerEP
                 {
                     // TODO Extract WriteBatsmanData() method
                     // TODO add Captain * and Keeper +
-                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td><td>{7}</TD>",
+                    file.WriteLine("<td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td><td>{7}</TD>",
                                    Teams.teamOnePlayers[i].Name, Teams.teamOnePlayers[i].DismissalMethod,
                                    Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].Name,
                                    Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name,
@@ -146,13 +146,13 @@ namespace CricketScorerEP
 
                 else if ((i == Teams.currentBatsmanOne) || (i == Teams.currentBatsmanTwo))
                 {
-                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>not out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
+                    file.WriteLine("<td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>not out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
                                    Teams.teamOnePlayers[i].Name, Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
                                    Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
                 }
                 else
                 {
-                    file.WriteLine("<td>" + i + "</td><td width=25%>{0}</td><TD>did not bat</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
+                    file.WriteLine("<td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>did not bat</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>", 
                                    Teams.teamOnePlayers[i].Name,Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
                                    Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
                 }
