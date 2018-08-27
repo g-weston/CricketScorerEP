@@ -40,11 +40,11 @@ namespace CricketScorerEP
         {
             get
             {
-                return OversHeader;
+                return oversHeader;
             }
             set
             {
-                if (OversHeader != value)
+                if (oversHeader != value)
                 {
                     oversHeader = value;
                     this.OnPropertyChanged("OversHeader");
