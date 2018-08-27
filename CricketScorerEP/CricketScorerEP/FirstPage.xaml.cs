@@ -470,10 +470,22 @@ namespace CricketScorerEP
             var completedRuns = await DisplayActionSheet("How many runs were completed before the wicket?", null, null,
                                                          "0", "1", "2", "3");
             int.TryParse(completedRuns, out runsScoredBeforeWicket);
-            var batsmenCrossed = await DisplayActionSheet("Did the batsman cross on the " + (runsScoredBeforeWicket + 1) + " run",
-                null, null, "Yes", "No");
-            if (batsmenCrossed == "Yes")
-                batsmenCrossedBeforeWicket = true;
+            if (runsScoredBeforeWicket > 0)
+            {
+                var batsmenCrossed = await DisplayActionSheet("Did the batsman cross on the " + (runsScoredBeforeWicket + 1) + " run",
+                    null, null, "Yes", "No");
+                if (batsmenCrossed == "Yes")
+                    batsmenCrossedBeforeWicket = true;
+            }   
+        }
+
+        void PlayerDismissed()
+        {
+            Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
+            Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
+            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
+            Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
+            Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
         }
         
         async void WicketClicked(object sender, EventArgs e)
@@ -486,11 +498,7 @@ namespace CricketScorerEP
                     case "Bowled":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "b";
                         // TODO This block of code is common to Bowled, LBW and HitWicket
-                        Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
-                        Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                        PlayerDismissed();
                         break;
                     case "Caught":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ct";
