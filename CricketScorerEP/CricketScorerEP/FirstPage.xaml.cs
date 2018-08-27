@@ -214,16 +214,17 @@ namespace CricketScorerEP
 
         async void PickNewBowler()
         {
+            // Need to invoke this picker for the opening bowler too.
             // Perhaps there should be a "is there a new bowler" question first - if not, go back to whoever was bowling the previous over from the other end
-            string nextBowler = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[0].Name,
-                                Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name, Teams.teamTwoPlayers[3].Name,
-                                Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name, Teams.teamTwoPlayers[6].Name,
-                                Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[9].Name,
-                                Teams.teamTwoPlayers[10].Name);
+            string nextBowlerName = await DisplayActionSheet("Next Bowler", null, null, Teams.teamTwoPlayers[0].Name,
+                                    Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name, Teams.teamTwoPlayers[3].Name,
+                                    Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name, Teams.teamTwoPlayers[6].Name,
+                                    Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[9].Name,
+                                    Teams.teamTwoPlayers[10].Name);
 
-            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
             {
-                if (Teams.teamTwoPlayers[i].Name == nextBowler)
+                if (Teams.teamTwoPlayers[i].Name == nextBowlerName)
                     Teams.currentBowler = i;
             }
             CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
@@ -232,13 +233,14 @@ namespace CricketScorerEP
 
         async void SelectNextBatsman()
         {
+            // Perhaps need this at the start of the innings, too, to select the openers.
             string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null,
                                     Teams.teamOnePlayers[0].Name, Teams.teamOnePlayers[1].Name, Teams.teamOnePlayers[2].Name,
                                     Teams.teamOnePlayers[3].Name, Teams.teamOnePlayers[4].Name, Teams.teamOnePlayers[5].Name,
                                     Teams.teamOnePlayers[6].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[8].Name,
                                     Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[10].Name);
 
-            for (int i = 0; i < Teams.teamOnePlayers.Count - 1; i++)
+            for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
                 if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
                     Teams.nextBatsman = i;
@@ -248,14 +250,14 @@ namespace CricketScorerEP
         async void GetDismissingFielder()
         {
             //use picker to display all fielders on the pitch
-            string dismissingWicketFielder = await DisplayActionSheet("Which fielder?", null, null,
+            string dismissingFielderName = await DisplayActionSheet("Which fielder?", null, null,
                                             Teams.teamTwoPlayers[0].Name, Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name,
                                             Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
                                             Teams.teamTwoPlayers[6].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name,
                                             Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[10].Name);
-            for (int i = Teams.teamTwoPlayers.Count - 1; i > 0; i--)
+            for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
             {
-                if (Teams.teamTwoPlayers[i].Name == dismissingWicketFielder)
+                if (Teams.teamTwoPlayers[i].Name == dismissingFielderName)
                     Teams.dismissingFielder = i;
             }
         }
@@ -564,15 +566,15 @@ namespace CricketScorerEP
                 }
                 Innings.Wickets++;
                 SelectNextBatsman();
-                if (Teams.teamOnePlayers[Teams.batsmanFacing].IsOut)
+                if (Teams.teamOnePlayers[Teams.currentBatsmanOne].IsOut)
                 {
-                    Teams.batsmanFacing = Teams.nextBatsman;
-                   // BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
+                    Teams.currentBatsmanOne = Teams.nextBatsman;
+                //    BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
                 }
-                else if (Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut)
+                else if (Teams.teamOnePlayers[Teams.currentBatsmanTwo].IsOut)
                 {
-                    Teams.batsmanNotFacing = Teams.nextBatsman;
-                  //  BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
+                    Teams.currentBatsmanTwo = Teams.nextBatsman;
+                 //   BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
                 };
                 Teams.UpdateBowlerOversBowled();
                 UpdateDisplay();
