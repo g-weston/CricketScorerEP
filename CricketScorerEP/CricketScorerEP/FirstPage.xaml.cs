@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Xamarin.Forms;
 
@@ -10,7 +11,7 @@ namespace CricketScorerEP
 		{
 			InitializeComponent();
 		    BindingContext = this;
-            // TODO check that Match and Teams are not null - bale out if so
+            // TODO check that Match and Teams are not null - bail out if so
         }
 
         private async void NavigateMainPage()
@@ -226,7 +227,9 @@ namespace CricketScorerEP
             for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
             {
                 if (Teams.teamTwoPlayers[i].Name == nextBowlerName)
+                {
                     Teams.currentBowler = i;
+                }
             }
             CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
             UpdateDisplay();
@@ -235,16 +238,21 @@ namespace CricketScorerEP
         async void SelectNextBatsman()
         {
             // TODO Perhaps need this at the start of the innings, too, to select the openers.
-            string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null,
-                                    Teams.teamOnePlayers[0].Name, Teams.teamOnePlayers[1].Name, Teams.teamOnePlayers[2].Name,
-                                    Teams.teamOnePlayers[3].Name, Teams.teamOnePlayers[4].Name, Teams.teamOnePlayers[5].Name,
-                                    Teams.teamOnePlayers[6].Name, Teams.teamOnePlayers[7].Name, Teams.teamOnePlayers[8].Name,
-                                    Teams.teamOnePlayers[9].Name, Teams.teamOnePlayers[10].Name);
-
+            List<string> yetToBat = new List<string>();
+            for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
+            {
+                if (!Teams.teamOnePlayers[i].IsOut && (i != Teams.currentBatsmanOne) & (i != Teams.currentBatsmanTwo))
+                {
+                    yetToBat.Add(Teams.teamOnePlayers[i].Name);
+                }
+            }
+            string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null, yetToBat.ToArray());
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
                 if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
+                {
                     Teams.nextBatsman = i;
+                }
             }
         }
 
@@ -259,7 +267,9 @@ namespace CricketScorerEP
             for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
             {
                 if (Teams.teamTwoPlayers[i].Name == dismissingFielderName)
+                {
                     Teams.dismissingFielder = i;
+                }
             }
         }
 
@@ -388,6 +398,7 @@ namespace CricketScorerEP
                 Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
                 Innings.Runs++; // += RunsPerNoBall (=2 in junior cricket)
                 Innings.NoBalls++;
+                Teams.teamTwoPlayers[Teams.currentBowler].NoBallsDelivered++;
                 Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
                 UpdateDisplay();
             }
@@ -439,7 +450,7 @@ namespace CricketScorerEP
                 if (byesOffWide == "Yes")
                 {
                     var howManyByesOffWide = await DisplayActionSheet("How many byes came off the Wide?", "Cancel",
-                        null, "1", "2", "3", "4", "other");
+                                                                       null, "1", "2", "3", "4", "other");
                     int.TryParse(howManyByesOffWide, out int byesOffWideThisDelivery);
                     Innings.ByesOffWide = byesOffWideThisDelivery;
                     Innings.RecordByesOffWide();
@@ -456,11 +467,16 @@ namespace CricketScorerEP
         async void DetermineWhichBatsmanIsOut()
         {
             string batsmanOut = await DisplayActionSheet("Which batsman was out?", null, null,
-                Teams.teamOnePlayers[Teams.batsmanFacing].Name, Teams.teamOnePlayers[Teams.batsmanNotFacing].Name);
+                                                        Teams.teamOnePlayers[Teams.batsmanFacing].Name, 
+                                                        Teams.teamOnePlayers[Teams.batsmanNotFacing].Name);
             if (batsmanOut == Teams.teamOnePlayers[Teams.batsmanFacing].Name)
+            {
                 Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
+            }
             else if (batsmanOut == Teams.teamOnePlayers[Teams.batsmanNotFacing].Name)
+            {
                 Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut = true;
+            }
         }
 
         public static bool batsmenCrossedBeforeWicket = false;
@@ -470,16 +486,15 @@ namespace CricketScorerEP
             var completedRuns = await DisplayActionSheet("How many runs were completed before the wicket?", null, null,
                                                          "0", "1", "2", "3");
             int.TryParse(completedRuns, out runsScoredBeforeWicket);
-            if (runsScoredBeforeWicket > 0)
+            var batsmenCrossed = await DisplayActionSheet("Did the batsman cross on run " + (runsScoredBeforeWicket + 1),
+                                                           null, null, "Yes", "No");
+            if (batsmenCrossed == "Yes")
             {
-                var batsmenCrossed = await DisplayActionSheet("Did the batsman cross on the " + (runsScoredBeforeWicket + 1) + " run",
-                    null, null, "Yes", "No");
-                if (batsmenCrossed == "Yes")
-                    batsmenCrossedBeforeWicket = true;
+                batsmenCrossedBeforeWicket = true;
             }   
         }
 
-        void PlayerDismissed()
+        void SetBatsmanAsDismissed()
         {
             Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
             Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
@@ -487,7 +502,36 @@ namespace CricketScorerEP
             Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
         }
-        
+
+        void SwapInNewBatsman()
+        {
+            if ((Teams.teamOnePlayers[Teams.batsmanFacing].IsOut) && (Teams.batsmanFacing == Teams.currentBatsmanOne))
+            {
+                Teams.currentBatsmanOne = Teams.nextBatsman;
+                Teams.batsmanFacing = Teams.currentBatsmanOne;
+                BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
+            }
+            else if ((Teams.teamOnePlayers[Teams.batsmanFacing].IsOut) && (Teams.batsmanFacing == Teams.currentBatsmanTwo))
+            {
+                Teams.currentBatsmanTwo = Teams.nextBatsman;
+                Teams.batsmanFacing = Teams.currentBatsmanTwo;
+                BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
+            }
+            else if ((Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut) && (Teams.batsmanNotFacing == Teams.currentBatsmanOne))
+            {
+                Teams.currentBatsmanOne = Teams.nextBatsman;
+                Teams.batsmanNotFacing = Teams.currentBatsmanOne;
+                BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name;
+            }
+            else if ((Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut) && (Teams.batsmanNotFacing == Teams.currentBatsmanTwo))
+            {
+                Teams.currentBatsmanTwo = Teams.nextBatsman;
+                Teams.batsmanNotFacing = Teams.currentBatsmanTwo;
+                BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name;
+            };
+            Teams.teamOnePlayers[Teams.nextBatsman].StartTime = DateTime.Now.TimeOfDay;
+        }
+
         async void WicketClicked(object sender, EventArgs e)
         {
             var howOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
@@ -497,41 +541,38 @@ namespace CricketScorerEP
                 {
                     case "Bowled":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "b";
-                        // TODO This block of code is common to Bowled, LBW and HitWicket
-                        PlayerDismissed();
+                        SetBatsmanAsDismissed();
                         break;
                     case "Caught":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ct";
+                        // TODO This block of code is common to caught and stumped
                         GetDismissingFielder();
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
                         GetCompletedRunsBeforeWicket();
                         Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredBeforeWicket;
-                        // TODO This block of code is common to caught and stumped
-                        Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
-                        Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                        SetBatsmanAsDismissed();
                         // TODO Could DisplayActionSheet("Which batsman is facing now?") if we can't work out this from crossed.
                         if (batsmenCrossedBeforeWicket)
                             Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                         break;
                     case "LBW":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "lbw";
-                        Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
-                        Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                        SetBatsmanAsDismissed();
                         break;
                     case "Run Out":
                         DetermineWhichBatsmanIsOut();
                         GetDismissingFielder();
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
                         if (Teams.teamOnePlayers[Teams.batsmanFacing].IsOut)
+                        {
                             Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ro";
+                            Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
+                        }
                         else if (Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut)
+                        {
                             Teams.teamOnePlayers[Teams.batsmanNotFacing].DismissalMethod = "ro";
+                            Teams.teamOnePlayers[Teams.batsmanNotFacing].DismissalTime = DateTime.Now.TimeOfDay;
+                        }
                         Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
                         GetCompletedRunsBeforeWicket();
                         Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredBeforeWicket;
@@ -540,11 +581,7 @@ namespace CricketScorerEP
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "st";
                         GetDismissingFielder();   // TODO or we could directly record wicket keeper here - use isKeeper variable (but what if not set?)
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
-                        Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
-                        Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                        SetBatsmanAsDismissed();
                         break;
                     case "Other": // https://www.lords.org/mcc/laws-of-cricket/laws/
                         var otherWaysOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Hit Wicket", "Handled Ball", "Obstruction", "Hit Twice", "Timed Out");
@@ -552,19 +589,21 @@ namespace CricketScorerEP
                         {
                             case "Hit Wicket":
                                 Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "hw";
-                                Teams.teamOnePlayers[Teams.batsmanFacing].IsOut = true;
-                                Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                                Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
-                                Teams.teamOnePlayers[Teams.batsmanFacing].DismissingBowler = Teams.currentBowler;
-                                Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken++;
+                                SetBatsmanAsDismissed();
                                 break;
                             case "Handled Ball": // This is now classed as obstruction.
                             case "Obstruction": // no credit to the bowler
                                 DetermineWhichBatsmanIsOut();
                                 if (Teams.teamOnePlayers[Teams.batsmanFacing].IsOut)
+                                {
                                     Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ob";
+                                    Teams.teamOnePlayers[Teams.batsmanFacing].DismissalTime = DateTime.Now.TimeOfDay;
+                                }
                                 else if (Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut)
+                                {
                                     Teams.teamOnePlayers[Teams.batsmanNotFacing].DismissalMethod = "ob";
+                                    Teams.teamOnePlayers[Teams.batsmanNotFacing].DismissalTime = DateTime.Now.TimeOfDay;
+                                }
                                 Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
                                 break;
                             case "Hit Twice": // no credit to the bowler
@@ -582,37 +621,8 @@ namespace CricketScorerEP
                         break;
                 }
                 Innings.Wickets++;
-                SelectNextBatsman();
-
-                // TODO Get time of new batsman and store in Player.StartTime, also get finishing time of dismissed batsman, store in Player.DismissalTime
-
-                // TODO Extract this 4-way logic into a method NewBatsman()
-                if ((Teams.teamOnePlayers[Teams.batsmanFacing].IsOut) && (Teams.batsmanFacing == Teams.currentBatsmanOne))
-                {
-                    Teams.currentBatsmanOne = Teams.nextBatsman;
-                    Teams.batsmanFacing = Teams.currentBatsmanOne;
-                    Teams.teamOnePlayers[Teams.batsmanFacing].StartTime = DateTime.Now.TimeOfDay;
-                    BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
-                }
-                else if ((Teams.teamOnePlayers[Teams.batsmanFacing].IsOut) && (Teams.batsmanFacing == Teams.currentBatsmanTwo))
-                {
-                    Teams.currentBatsmanTwo = Teams.nextBatsman;
-                    Teams.batsmanFacing = Teams.currentBatsmanTwo;
-                    BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name + "*";
-                }
-                else if ((Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut) && (Teams.batsmanNotFacing == Teams.currentBatsmanOne))
-                {
-                    Teams.currentBatsmanOne = Teams.nextBatsman;
-                    Teams.batsmanNotFacing = Teams.currentBatsmanOne;
-                    BatsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name;
-                }
-                else if ((Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut) && (Teams.batsmanNotFacing == Teams.currentBatsmanTwo))
-                {
-                    Teams.currentBatsmanTwo = Teams.nextBatsman;
-                    Teams.batsmanNotFacing = Teams.currentBatsmanTwo;
-                    BatsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name;
-                };
-
+                SelectNextBatsman(); // Move to Teams
+                SwapInNewBatsman();  // Move to Teams
                 Teams.UpdateBowlerOversBowled();
                 UpdateDisplay();
             }
