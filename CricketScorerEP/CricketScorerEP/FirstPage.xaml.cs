@@ -237,7 +237,7 @@ namespace CricketScorerEP
 
         async void SelectNextBatsman()
         {
-            // TODO Perhaps need this at the start of the innings, too, to select the openers.
+            // TODO Perhaps need this at the start of the innings, too, to select alternative openers.
             List<string> yetToBat = new List<string>();
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
@@ -247,6 +247,7 @@ namespace CricketScorerEP
                 }
             }
             string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null, yetToBat.ToArray());
+            // TODO what is the order of execution for an async/await vs. the rest of this method?
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
                 if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
@@ -258,7 +259,7 @@ namespace CricketScorerEP
 
         async void GetDismissingFielder()
         {
-            // use picker to display all fielders on the pitch
+            // Use a picker to display all fielders on the pitch
             string dismissingFielderName = await DisplayActionSheet("Which fielder?", null, null,
                                             Teams.teamTwoPlayers[0].Name, Teams.teamTwoPlayers[1].Name, Teams.teamTwoPlayers[2].Name,
                                             Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
