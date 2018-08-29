@@ -22,8 +22,7 @@ namespace CricketScorerEP
             // TODO Have a guard or try/catch in here in case file does not exist (or cannot be read) to avoid exceptions
             ScorerIO.ReadMatchDetails("MatchDefinition.txt");
             Innings.ScheduledOvers = Match.ScheduledOvers;
-            string team =
-                await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
+            string team = await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
             int.TryParse(team, out int teamNumber);
 
             var loadOption = await DisplayActionSheet("Do you want to load the teams from a file or input now?",

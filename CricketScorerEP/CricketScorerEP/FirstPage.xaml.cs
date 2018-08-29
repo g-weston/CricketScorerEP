@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace CricketScorerEP
@@ -214,7 +215,20 @@ namespace CricketScorerEP
             }
         }
 
-        async void PickNewBowler()
+        int GetPlayerIndexFromName(string playerName, List<Player> playerList)
+        {
+            int playerIndex = 0;
+            for (int i = 0; i < playerList.Count; i++)
+            {
+                if (playerList[i].Name == playerName)
+                {
+                    playerIndex = i;
+                }
+            }
+            return playerIndex;
+        }
+
+        async Task<string> PickNewBowler()
         {
             // TODO Need to invoke this picker for the opening bowler too.
             // TODO Perhaps there should be a "has there been a bowling change" question first - if not, go back to whoever was bowling the previous over from the other end
@@ -224,18 +238,14 @@ namespace CricketScorerEP
                                     Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name, Teams.teamTwoPlayers[9].Name,
                                     Teams.teamTwoPlayers[10].Name);
 
-            for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
-            {
-                if (Teams.teamTwoPlayers[i].Name == nextBowlerName)
-                {
-                    Teams.currentBowler = i;
-                }
-            }
+            Teams.currentBowler = GetPlayerIndexFromName(nextBowlerName, Teams.teamTwoPlayers);
             CurrentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
             UpdateDisplay();
+
+            return nextBowlerName;
         }
 
-        async void SelectNextBatsman()
+        async Task<string> SelectNextBatsman()
         {
             // TODO Perhaps need this at the start of the innings, too, to select alternative openers.
             List<string> yetToBat = new List<string>();
@@ -247,17 +257,12 @@ namespace CricketScorerEP
                 }
             }
             string nextBatsmanName = await DisplayActionSheet("Which is the next batsman?", null, null, yetToBat.ToArray());
-            // TODO what is the order of execution for an async/await vs. the rest of this method?
-            for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
-            {
-                if (Teams.teamOnePlayers[i].Name == nextBatsmanName)
-                {
-                    Teams.nextBatsman = i;
-                }
-            }
+            Teams.nextBatsman = GetPlayerIndexFromName(nextBatsmanName, Teams.teamOnePlayers);
+
+            return nextBatsmanName;
         }
 
-        async void GetDismissingFielder()
+        async Task<string> GetDismissingFielder()
         {
             // Use a picker to display all fielders on the pitch
             string dismissingFielderName = await DisplayActionSheet("Which fielder?", null, null,
@@ -265,15 +270,10 @@ namespace CricketScorerEP
                                             Teams.teamTwoPlayers[3].Name, Teams.teamTwoPlayers[4].Name, Teams.teamTwoPlayers[5].Name,
                                             Teams.teamTwoPlayers[6].Name, Teams.teamTwoPlayers[7].Name, Teams.teamTwoPlayers[8].Name,
                                             Teams.teamTwoPlayers[9].Name, Teams.teamTwoPlayers[10].Name);
-            for (int i = Teams.teamTwoPlayers.Count - 1; i >= 0; i--)
-            {
-                if (Teams.teamTwoPlayers[i].Name == dismissingFielderName)
-                {
-                    Teams.dismissingFielder = i;
-                }
-            }
-        }
 
+            Teams.dismissingFielder = GetPlayerIndexFromName(dismissingFielderName, Teams.teamTwoPlayers);
+            return dismissingFielderName;
+        }
 
         void UpdateDisplay()
         {
@@ -289,15 +289,17 @@ namespace CricketScorerEP
             OversHeader = Innings.Overs.ToString();
         }
 
-        void DotClicked(object sender, EventArgs e)
+        async void DotClicked(object sender, EventArgs e)
         {
             Teams.UpdateBowlerOversBowled();
             if (Innings.validDeliveriesInThisOver == 6)
-                PickNewBowler();
+            { 
+            await PickNewBowler();
+            }
             UpdateDisplay();
         }
 
-        async void RunsClicked(object sender, EventArgs e)
+        async Task<string> RunsClicked(object sender, EventArgs e)
         {
             string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             if (runsScored != "Cancel")
@@ -313,13 +315,16 @@ namespace CricketScorerEP
                 Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += runsScoredThisDelivery;
                 Teams.UpdateBowlerOversBowled();
                 if (Innings.validDeliveriesInThisOver == 6)
-                    PickNewBowler();
+                {
+                    await PickNewBowler();
+                }
                 Innings.maidenBowled = false;
                 UpdateDisplay();
             }
+            return runsScored;
         }
 
-        async void BoundaryClicked(object sender, EventArgs e)
+        async Task<string> BoundaryClicked(object sender, EventArgs e)
         {
             var boundaryRuns = await DisplayActionSheet("Was it a 4 or a 6?", "Cancel", null, "4", "6");
             if (boundaryRuns != "Cancel")
@@ -341,12 +346,15 @@ namespace CricketScorerEP
                 Innings.maidenBowled = false;
                 Teams.UpdateBowlerOversBowled();
                 if (Innings.validDeliveriesInThisOver == 6)
-                    PickNewBowler();
+                {
+                    await PickNewBowler();
+                }
                 UpdateDisplay();
             }
+            return boundaryRuns;
         }
 
-        async void NoBallClicked(object sender, EventArgs e)
+        async Task<string> NoBallClicked(object sender, EventArgs e)
         {
             var anyRunsScoredOffNoBall = await DisplayActionSheet("Were there any runs scored off this no ball?", "Cancel", null, "Yes", "No");
             if (anyRunsScoredOffNoBall != "Cancel")
@@ -403,9 +411,10 @@ namespace CricketScorerEP
                 Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
                 UpdateDisplay();
             }
+            return anyRunsScoredOffNoBall;
         }
 
-        async void ByesClicked(object sender, EventArgs e)
+        async Task<string> ByesClicked(object sender, EventArgs e)
         {
             var typeOfByes = await DisplayActionSheet("Were they byes or leg byes?", "Cancel", null, "Byes", "Leg Byes");
             if (typeOfByes != "Cancel")
@@ -438,12 +447,15 @@ namespace CricketScorerEP
                 }
                 Teams.UpdateBowlerOversBowled();
                 if (Innings.validDeliveriesInThisOver == 6)
-                    PickNewBowler();
+                {
+                    await PickNewBowler();
+                }
                 UpdateDisplay();
             }
+            return typeOfByes;
         }
 
-        async void WideClicked(object sender, EventArgs e)
+        async Task<string> WideClicked(object sender, EventArgs e)
         {
             var byesOffWide = await DisplayActionSheet("Were there any byes taken off the wide?", "Cancel", null, "Yes", "No");
             if (byesOffWide != "Cancel")
@@ -463,9 +475,10 @@ namespace CricketScorerEP
                 Innings.RecordWide();
                 UpdateDisplay();
             }
+            return byesOffWide;
         }
 
-        async void DetermineWhichBatsmanIsOut()
+        async Task<string> DetermineWhichBatsmanIsOut()
         {
             string batsmanOut = await DisplayActionSheet("Which batsman was out?", null, null,
                                                         Teams.teamOnePlayers[Teams.batsmanFacing].Name, 
@@ -478,11 +491,12 @@ namespace CricketScorerEP
             {
                 Teams.teamOnePlayers[Teams.batsmanNotFacing].IsOut = true;
             }
+            return batsmanOut;
         }
 
         public static bool batsmenCrossedBeforeWicket = false;
         public static int runsScoredBeforeWicket = 0;
-        async void GetCompletedRunsBeforeWicket()
+        async Task<string> GetCompletedRunsBeforeWicket()
         {
             var completedRuns = await DisplayActionSheet("How many runs were completed before the wicket?", null, null,
                                                          "0", "1", "2", "3");
@@ -492,7 +506,8 @@ namespace CricketScorerEP
             if (batsmenCrossed == "Yes")
             {
                 batsmenCrossedBeforeWicket = true;
-            }   
+            }
+            return completedRuns;
         }
 
         void SetBatsmanAsDismissed()
@@ -533,7 +548,7 @@ namespace CricketScorerEP
             Teams.teamOnePlayers[Teams.nextBatsman].StartTime = DateTime.Now.TimeOfDay;
         }
 
-        async void WicketClicked(object sender, EventArgs e)
+        async Task<string> WicketClicked(object sender, EventArgs e)
         {
             var howOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
             if (howOut != "Cancel")
@@ -547,9 +562,9 @@ namespace CricketScorerEP
                     case "Caught":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ct";
                         // TODO This block of code is common to caught and stumped
-                        GetDismissingFielder();
+                        await GetDismissingFielder();
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
-                        GetCompletedRunsBeforeWicket();
+                        await GetCompletedRunsBeforeWicket();
                         Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredBeforeWicket;
                         SetBatsmanAsDismissed();
                         // TODO Could DisplayActionSheet("Which batsman is facing now?") if we can't work out this from crossed.
@@ -561,8 +576,8 @@ namespace CricketScorerEP
                         SetBatsmanAsDismissed();
                         break;
                     case "Run Out":
-                        DetermineWhichBatsmanIsOut();
-                        GetDismissingFielder();
+                        await DetermineWhichBatsmanIsOut();
+                        await GetDismissingFielder();
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
                         if (Teams.teamOnePlayers[Teams.batsmanFacing].IsOut)
                         {
@@ -575,12 +590,12 @@ namespace CricketScorerEP
                             Teams.teamOnePlayers[Teams.batsmanNotFacing].DismissalTime = DateTime.Now.TimeOfDay;
                         }
                         Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                        GetCompletedRunsBeforeWicket();
+                        await GetCompletedRunsBeforeWicket();
                         Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredBeforeWicket;
                         break;
                     case "Stumped":
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "st";
-                        GetDismissingFielder();   // TODO or we could directly record wicket keeper here - use isKeeper variable (but what if not set?)
+                        await GetDismissingFielder();   // TODO or we could directly record wicket keeper here - use isKeeper variable (but what if not set?)
                         Teams.teamOnePlayers[Teams.batsmanFacing].DismissingFielder = Teams.dismissingFielder;
                         SetBatsmanAsDismissed();
                         break;
@@ -594,7 +609,7 @@ namespace CricketScorerEP
                                 break;
                             case "Handled Ball": // This is now classed as obstruction.
                             case "Obstruction": // no credit to the bowler
-                                DetermineWhichBatsmanIsOut();
+                                await DetermineWhichBatsmanIsOut();
                                 if (Teams.teamOnePlayers[Teams.batsmanFacing].IsOut)
                                 {
                                     Teams.teamOnePlayers[Teams.batsmanFacing].DismissalMethod = "ob";
@@ -622,11 +637,12 @@ namespace CricketScorerEP
                         break;
                 }
                 Innings.Wickets++;
-                SelectNextBatsman(); // Move to Teams
+                await SelectNextBatsman();
                 SwapInNewBatsman();  // Move to Teams
                 Teams.UpdateBowlerOversBowled();
                 UpdateDisplay();
             }
+            return howOut;
         }
     }
 }
