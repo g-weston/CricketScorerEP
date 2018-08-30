@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace CricketScorerEP
@@ -38,18 +39,19 @@ namespace CricketScorerEP
                 Match.AwayTeam = clubName;
             int.TryParse(fileContents[1], out int numberOfPlayers);
             string[] lineContents = { };
-            string forename, surname, playerName;
+            string forename, surname, playerName, fullName;
             for (int i = 0; i < numberOfPlayers; i++)
             {
                 lineContents = fileContents[i + 2].Split(' ');
                 int.TryParse(lineContents[0], out int playerId);
                 forename = lineContents[1];
                 surname = lineContents[2];
-                playerName = forename[0].ToString().ToUpper() + ' ' + surname[0].ToString().ToUpper() + surname.Substring(1);
+                playerName = forename[0].ToString().ToUpper() + ' ' + surname[0].ToString().ToUpper() + surname.Substring(1);  // Initial and surname, initial caps
+                fullName = forename[0].ToString().ToUpper() + forename.Substring(1) + ' ' + surname[0].ToString().ToUpper() + surname.Substring(1);  // Forename and surname, initial caps
                 if (teamNumber == 1)
-                    Teams.teamOnePlayers.Add(new Player(clubName, playerId, playerName));
+                    Teams.teamOnePlayers.Add(new Player(clubName, playerId, playerName, fullName));
                 else if (teamNumber == 2)
-                    Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName));
+                    Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName, fullName));
             }
             file.Close();
         }
@@ -72,13 +74,13 @@ namespace CricketScorerEP
             for (int i = 0; i < numberOfPlayers; i++)
             {
                 Console.WriteLine("Please enter the name of player {0} from {1}", i + 1, clubName);
-                playerName = Console.ReadLine();
+                playerName = Console.ReadLine(); // TODO split this into forename & surname, extract initial caps as for "from file" method above
                 Console.WriteLine("Please enter the id of {0} from {1}", playerName, clubName);
                 playerId = int.Parse(Console.ReadLine());
                 if (teamNumber == 1)
-                    Teams.teamOnePlayers.Add(new Player(clubName, playerId, playerName));
+                    Teams.teamOnePlayers.Add(new Player(clubName, playerId, playerName, playerName));
                 else if (teamNumber == 2)
-                    Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName));
+                    Teams.teamTwoPlayers.Add(new Player(clubName, playerId, playerName, playerName));
             }
         }
 
@@ -129,35 +131,48 @@ namespace CricketScorerEP
             file.WriteLine("<tr>");
             file.WriteLine("<th>&nbsp;</th><th width = 25%>Name</th><th width = 25%>How Out</th><th width = 25%>Bowler</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th>");
             file.WriteLine("</tr>");
+
+            string dismissalColumnText = "", bowlerColumnText = "";
             for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
             {
-                if (Teams.teamOnePlayers[i].IsOut)
+                if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "b" ||
+                                                      Teams.teamOnePlayers[i].DismissalMethod == "ct" ||
+                                                      Teams.teamOnePlayers[i].DismissalMethod == "st" ||
+                                                      Teams.teamOnePlayers[i].DismissalMethod == "lbw" ||
+                                                      Teams.teamOnePlayers[i].DismissalMethod == "hw"))
                 {
-                    // TODO Extract WriteBatsmanData() method
-                    // TODO add Captain * and Keeper +
-                    string dismissalMethod = Teams.teamOnePlayers[i].DismissalMethod + " " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].Name;
-                    string bowler = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].Name;
-                    file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td></TR>",
-                                   Teams.teamOnePlayers[i].Name, dismissalMethod, bowler,
-                                   Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    bowlerColumnText = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].FullName;
                 }
 
-                else if ((i == Teams.currentBatsmanOne) || (i == Teams.currentBatsmanTwo))
+                if (i == Teams.currentBatsmanOne || i == Teams.currentBatsmanTwo)
                 {
-                    file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>not out</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td></TR>", 
-                                   Teams.teamOnePlayers[i].Name, Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    dismissalColumnText = "not out";
                 }
-                else
+                else if (!Teams.teamOnePlayers[i].IsOut && (i != Teams.currentBatsmanOne || i != Teams.currentBatsmanTwo))
                 {
-                    file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>did not bat</tD><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td></TR>", 
-                                   Teams.teamOnePlayers[i].Name,Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                    dismissalColumnText = "did not bat";
                 }
+                else if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "ct" ||
+                                                           Teams.teamOnePlayers[i].DismissalMethod == "st"))
+                {
+                    dismissalColumnText = Teams.teamOnePlayers[i].DismissalMethod + " " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName;
+                }
+                else if (Teams.teamOnePlayers[i].IsOut && Teams.teamOnePlayers[i].DismissalMethod == "ro")
+                {
+                    dismissalColumnText = "run out (" + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName + ")";
+                }
+                // Not sure how to represent "to", "ht", "ob" on a scorecard?
+
+                // TODO Extract WriteBatsmanData() method
+                // TODO add Captain * and Keeper +
+                file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td></TR>",
+                                   Teams.teamOnePlayers[i].FullName, dismissalColumnText, bowlerColumnText,
+                                   Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
             }
+
             string extras = "b(" + Innings.Byes + "),lb(" + Innings.LegByes + "),w(" + Innings.Wides + "),nb(" + Innings.NoBalls + ")";
-            file.WriteLine("<TR><td>{0}</td><TD></td>,<TD></td>,<TD></td>,<TD>{4}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+            file.WriteLine("<TR><td>{0}</td><TD></td>,<TD></td>,<TD></td>,<TD>{1}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
             file.WriteLine("<TR><TD>Total: </TD><TD>{0}</TD>", Innings.Runs, "/TR>");
             file.WriteLine("<TR><TD>Wickets: </TD><TD>{0}</TD>", Innings.Wickets,"/TR>");
             file.WriteLine("<TR><TD>Overs: </TD><TD>{0}</TD>", Innings.Overs, "/TR>");
@@ -175,13 +190,13 @@ namespace CricketScorerEP
                 if (Teams.teamTwoPlayers[i].NumberOfOversBowled > 0)
                 {
                     // TODO Extract WriteBowlerData() method
-                    file.WriteLine("<TR><td>{0}</td><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td></TR>", Teams.teamTwoPlayers[i].Name,
-                                                                                                             Teams.teamTwoPlayers[i].NumberOfOversBowled,
-                                                                                                             Teams.teamTwoPlayers[i].NumberOfMaidensBowled,
-                                                                                                             Teams.teamTwoPlayers[i].RunsConceded,
-                                                                                                             Teams.teamTwoPlayers[i].NumberOfWicketsTaken,
-                                                                                                             Teams.teamTwoPlayers[i].WidesConceded,
-                                                                                                             Teams.teamTwoPlayers[i].NoBallsDelivered);
+                    file.WriteLine("<TR><td>{0}</td><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td></TR>", Teams.teamTwoPlayers[i].FullName,
+                                                                                                               Teams.teamTwoPlayers[i].NumberOfOversBowled,
+                                                                                                               Teams.teamTwoPlayers[i].NumberOfMaidensBowled,
+                                                                                                               Teams.teamTwoPlayers[i].RunsConceded,
+                                                                                                               Teams.teamTwoPlayers[i].NumberOfWicketsTaken,
+                                                                                                               Teams.teamTwoPlayers[i].WidesConceded,
+                                                                                                               Teams.teamTwoPlayers[i].NoBallsDelivered);
                 }
             }
             file.WriteLine("</table>");
@@ -195,28 +210,28 @@ namespace CricketScorerEP
         public static void WriteHTMLScorecard()
         {
             // This will ultimately replace WriteScorecard(), but will be developed in parallel, leaving WriteScorecard() working in the meantime
-            StringWriter stringWriter = new StringWriter();
-            /*  using (HtmlTextWriter writer = new HtmlTextWriter(stringWriter))
-              {
-                  writer.RenderBeginTag(HtmlTextWriterTag.Html);
-                  writer.RenderBeginTag(HtmlTextWriterTag.Head);
-                  writer.RenderBeginTag(HtmlTextWriterTag.Title);
-                  writer.Write(this.Title);
-                  writer.RenderEndTag();
-                  writer.AddAttribute(HtmlTextWriterAttribute.Href, ServerPath + ResetCssUrl);
-                  writer.AddAttribute(HtmlTextWriterAttribute.Type, "text/css");
-                  writer.AddAttribute(HtmlTextWriterAttribute.Rel, "stylesheet");
-                  writer.RenderBeginTag(HtmlTextWriterTag.Link);
-                  writer.RenderEndTag();
-                  writer.RenderBeginTag(HtmlTextWriterTag.Body);
-                  writer.RenderBeginTag(HtmlTextWriterTag.H1);
-                  writer.Write(this.Title);
-                  writer.RenderEndTag();
-                  writer.RenderBeginTag(HtmlTextWriterTag.H2);
-                  writer.Write("Standard Operating Procedure");
-                  writer.RenderEndTag();
-                  writer.RenderBeginTag(HtmlTextWriterTag.Table);
-                  writer.RenderBeginTag(HtmlTextWriterTag.Tr); */
+           // StringWriter stringWriter = new StringWriter();
+           // using (XmlTextWriter writer = new XmlTextWriter(stringWriter))
+
+            var settings = new System.Xml.XmlWriterSettings();
+            settings.OmitXmlDeclaration = true;
+            settings.Indent = true;
+            var writer = System.Xml.XmlWriter.Create("scorecard.html", settings);
+
+            writer.WriteStartDocument();
+            writer.WriteDocType("html", null, null, null);
+            writer.WriteStartElement("html");
+            writer.WriteStartElement("head");
+            writer.WriteEndElement(); // </head>
+            writer.WriteStartElement("body");
+            writer.WriteStartElement("p");
+            writer.WriteString("Hello World");
+            writer.WriteEndElement(); // </p>
+            writer.WriteEndElement(); // </body>
+            writer.WriteEndElement(); // </html>
+            writer.WriteEndDocument();
+            writer.Close();
+            
         }
     }
 }
