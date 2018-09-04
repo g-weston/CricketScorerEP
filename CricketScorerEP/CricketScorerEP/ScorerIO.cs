@@ -178,10 +178,10 @@ namespace CricketScorerEP
                 }
 
                 string extras = "b(" + Innings.Byes + "),lb(" + Innings.LegByes + "),w(" + Innings.Wides + "),nb(" + Innings.NoBalls + ")";
-                file.WriteLine("<TR><td>Extras: </td><td>{0}</td><TD></td>,<TD></td><TD></td>,<TD>{1}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
-                file.WriteLine("<TR><TD>Total: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Runs, "/TR>");
-                file.WriteLine("<TR><TD>Wickets: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Wickets, "/TR>");
-                file.WriteLine("<TR><TD>Overs: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Overs, "/TR>");
+                file.WriteLine("<TR><td>Extras: </td><td>{0}</td><TD></td><TD></td><TD></td><TD>{1}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+                file.WriteLine("<TR><TD>Total: </TD><td></td><TD></td><TD></td><TD></td><TD>{0}</td>", Innings.Runs, "/TR>");
+                file.WriteLine("<TR><TD>Wickets: </TD><td></td><TD></td><TD></td><TD></td><TD>{0}</td>", Innings.Wickets, "/TR>");
+                file.WriteLine("<TR><TD>Overs: </TD><td></td><TD></td><TD></td><TD></td><TD>{0}</td>", Innings.Overs, "/TR>");
                 file.WriteLine("</table>");
 
                 // Need a fall of wicket section (Innings class needs new members to store that data)
