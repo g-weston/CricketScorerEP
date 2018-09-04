@@ -640,6 +640,10 @@ namespace CricketScorerEP
                 await SelectNextBatsman();
                 SwapInNewBatsman();  // Move to Teams
                 Teams.UpdateBowlerOversBowled();
+                if (Innings.validDeliveriesInThisOver == 6)
+                {
+                    await PickNewBowler();
+                }
                 UpdateDisplay();
             }
             return howOut;

@@ -117,93 +117,99 @@ namespace CricketScorerEP
         {
             // Base this on play-cricket scorecard format
             // This code to find the mobile Download folder is used in several places - perhaps extract to a utility method, and also perhaps think about making the location configurable.
-            string filename = Match.HomeTeam + "v" + Match.AwayTeam + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
+            string filename = Match.HomeTeam + "_vs_" + Match.AwayTeam + "_" + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
-            System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath);
 
-            file.WriteLine("<html>");
-            file.WriteLine("<body>");
-
-            file.WriteLine("<H3>"+Match.Venue+"</H3>");
-            // Use HTML <table> with large width for player name and dismissal data, then narrow columns for runs, 4, 6, balls.
-            file.WriteLine("<table>");
-            file.WriteLine("<tr>");
-            file.WriteLine("<th>&nbsp;</th><th width = 25%>Name</th><th width = 25%>How Out</th><th width = 25%>Bowler</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th>");
-            file.WriteLine("</tr>");
-
-            string dismissalColumnText = "", bowlerColumnText = "";
-            for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath))
             {
-                if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "b" ||
-                                                      Teams.teamOnePlayers[i].DismissalMethod == "ct" ||
-                                                      Teams.teamOnePlayers[i].DismissalMethod == "st" ||
-                                                      Teams.teamOnePlayers[i].DismissalMethod == "lbw" ||
-                                                      Teams.teamOnePlayers[i].DismissalMethod == "hw"))
+                file.AutoFlush = true;
+
+                file.WriteLine("<html>");
+                file.WriteLine("<body>");
+
+                file.WriteLine("<H3>" + Match.HomeTeam + " vs " + Match.AwayTeam + "</H3>");
+                file.WriteLine("<H4>Ground: " + Match.Venue + "</H4>");
+                file.WriteLine("<H4>Date: " + DateTime.Today.ToString("D", System.Globalization.CultureInfo.CreateSpecificCulture("en-US")) + "</H4>");
+                // Use HTML <table> with large width for player name and dismissal data, then narrow columns for runs, 4, 6, balls.
+                file.WriteLine("<table>");
+                file.WriteLine("<tr><th>&nbsp;</th><th width = 25%>Name</th><th width = 25%>How Out</th><th width = 25%>Bowler</th><th>Runs</th><th>4s</th><th>6s</th><th>Balls</th></tr>");
+
+                string dismissalColumnText, bowlerColumnText;
+                for (int i = 0; i < Teams.teamOnePlayers.Count; i++)
                 {
-                    bowlerColumnText = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].FullName;
+                    dismissalColumnText = ""; bowlerColumnText = "";
+                    if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "b" ||
+                                                          Teams.teamOnePlayers[i].DismissalMethod == "lbw"))
+                    {
+                        bowlerColumnText = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].FullName;
+                    }
+                    else if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "ct" ||
+                                                               Teams.teamOnePlayers[i].DismissalMethod == "st"))
+                    {
+                        dismissalColumnText = Teams.teamOnePlayers[i].DismissalMethod + " " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName;
+                        bowlerColumnText = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].FullName;
+                    }
+                    else if (Teams.teamOnePlayers[i].IsOut && Teams.teamOnePlayers[i].DismissalMethod == "hw")
+                    {
+                        dismissalColumnText = "hit wicket";
+                        bowlerColumnText = "b " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingBowler].FullName;
+                    }
+                    else if (Teams.teamOnePlayers[i].IsOut && Teams.teamOnePlayers[i].DismissalMethod == "ro")
+                    {
+                        dismissalColumnText = "run out (" + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName + ")";
+                    }
+                    else if (i == Teams.currentBatsmanOne || i == Teams.currentBatsmanTwo)
+                    {
+                        dismissalColumnText = "not out";
+                    }
+                    else if (!Teams.teamOnePlayers[i].IsOut && i != Teams.currentBatsmanOne && i != Teams.currentBatsmanTwo)
+                    {
+                        dismissalColumnText = "did not bat";
+                    }
+                    // Not sure how to represent "to", "ht", "ob" on a scorecard?
+
+                    // TODO Extract WriteBatsmanData() method
+                    // TODO add Captain * and Keeper +
+                    file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td><TD>{3}</td><TD>{4}</td><TD>{5}</td><TD>{6}</td></TR>",
+                                                           Teams.teamOnePlayers[i].FullName, dismissalColumnText, bowlerColumnText,
+                                                           Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
+                                                           Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
                 }
 
-                if (i == Teams.currentBatsmanOne || i == Teams.currentBatsmanTwo)
-                {
-                    dismissalColumnText = "not out";
-                }
-                else if (!Teams.teamOnePlayers[i].IsOut && (i != Teams.currentBatsmanOne || i != Teams.currentBatsmanTwo))
-                {
-                    dismissalColumnText = "did not bat";
-                }
-                else if (Teams.teamOnePlayers[i].IsOut && (Teams.teamOnePlayers[i].DismissalMethod == "ct" ||
-                                                           Teams.teamOnePlayers[i].DismissalMethod == "st"))
-                {
-                    dismissalColumnText = Teams.teamOnePlayers[i].DismissalMethod + " " + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName;
-                }
-                else if (Teams.teamOnePlayers[i].IsOut && Teams.teamOnePlayers[i].DismissalMethod == "ro")
-                {
-                    dismissalColumnText = "run out (" + Teams.teamTwoPlayers[Teams.teamOnePlayers[i].DismissingFielder].FullName + ")";
-                }
-                // Not sure how to represent "to", "ht", "ob" on a scorecard?
+                string extras = "b(" + Innings.Byes + "),lb(" + Innings.LegByes + "),w(" + Innings.Wides + "),nb(" + Innings.NoBalls + ")";
+                file.WriteLine("<TR><td>Extras: </td><td>{0}</td><TD></td>,<TD></td><TD></td>,<TD>{1}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
+                file.WriteLine("<TR><TD>Total: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Runs, "/TR>");
+                file.WriteLine("<TR><TD>Wickets: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Wickets, "/TR>");
+                file.WriteLine("<TR><TD>Overs: </TD><td></td><TD></td>,<TD></td><TD></td>,<TD>{0}</td>", Innings.Overs, "/TR>");
+                file.WriteLine("</table>");
 
-                // TODO Extract WriteBatsmanData() method
-                // TODO add Captain * and Keeper +
-                file.WriteLine("<TR><td>" + (i + 1) + "</td><td width=25%>{0}</td><TD>{1}</TD><TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td>,<TD>{5}</td>,<TD>{6}</td></TR>",
-                                   Teams.teamOnePlayers[i].FullName, dismissalColumnText, bowlerColumnText,
-                                   Teams.teamOnePlayers[i].RunsScored, Teams.teamOnePlayers[i].NumberOfFoursScored,
-                                   Teams.teamOnePlayers[i].NumberOfSixesScored, Teams.teamOnePlayers[i].DeliveriesFaced);
+                // Need a fall of wicket section (Innings class needs new members to store that data)
+                file.WriteLine("<H4>Fall of wicket</H4>"); // Needs not out batsman score
+
+                file.WriteLine("<table>");
+                file.WriteLine("<TR><th>&nbsp;</th><th width = 25%>Bowler</th><th>Overs</th><th>Maidens</th><th>Runs</th><th>Wickets</th><th>Wides</th><th>No Balls</th></TR>");
+
+                // TODO Bowling analysis - need another member on player to determine the bowling order
+                for (int i = 0; i < Teams.teamTwoPlayers.Count; i++)
+                {
+                    if (Teams.teamTwoPlayers[i].NumberOfOversBowled > 0)
+                    {
+                        // TODO Extract WriteBowlerData() method
+                        file.WriteLine("<TR><TD>" + (i + 1) + "</TD><td>{0}</td><TD>{1}</td><TD>{2}</td><TD>{3}</td><TD>{4}</td><TD>{5}</td><TD>{6}</td></TR>",
+                            Teams.teamTwoPlayers[i].FullName, Teams.teamTwoPlayers[i].NumberOfOversBowled,
+                            Teams.teamTwoPlayers[i].NumberOfMaidensBowled, Teams.teamTwoPlayers[i].RunsConceded,
+                            Teams.teamTwoPlayers[i].NumberOfWicketsTaken, Teams.teamTwoPlayers[i].WidesConceded,
+                            Teams.teamTwoPlayers[i].NoBallsDelivered);
+                    }
+                }
+                file.WriteLine("</table>");
+                file.WriteLine("</body>");
+                file.WriteLine("</html>");
+
+                file.Flush();
+                file.Close();
             }
-
-            string extras = "b(" + Innings.Byes + "),lb(" + Innings.LegByes + "),w(" + Innings.Wides + "),nb(" + Innings.NoBalls + ")";
-            file.WriteLine("<TR><td>{0}</td><TD></td>,<TD></td>,<TD></td>,<TD>{1}</td></TR>", extras, (Innings.Byes + Innings.LegByes + Innings.Wides + Innings.NoBalls));
-            file.WriteLine("<TR><TD>Total: </TD><TD>{0}</TD>", Innings.Runs, "/TR>");
-            file.WriteLine("<TR><TD>Wickets: </TD><TD>{0}</TD>", Innings.Wickets,"/TR>");
-            file.WriteLine("<TR><TD>Overs: </TD><TD>{0}</TD>", Innings.Overs, "/TR>");
-            file.WriteLine("</table>");
-
-            // Need a fall of wicket section (Innings class needs new members to store that data)
-            file.WriteLine("<H4>Fall of wicket</H4>"); // Needs not out batsman score
-
-            file.WriteLine("<table>");
-            file.WriteLine("<TR><th>Bowler</th><th>Overs</th><th>Maidens</th><th>Runs</th><th>Wickets</th><th>Wides</th><th>No Balls</th></TR>");
-
-            // TODO Bowling analysis - need another member on player to determine the bowling order
-            for (int i = 0; i < Teams.teamTwoPlayers.Count; i++)
-            {
-                if (Teams.teamTwoPlayers[i].NumberOfOversBowled > 0)
-                {
-                    // TODO Extract WriteBowlerData() method
-                    file.WriteLine("<TR><td>{0}</td><TD>{1}</td>,<TD>{2}</td>,<TD>{3}</td>,<TD>{4}</td></TR>", Teams.teamTwoPlayers[i].FullName,
-                                                                                                               Teams.teamTwoPlayers[i].NumberOfOversBowled,
-                                                                                                               Teams.teamTwoPlayers[i].NumberOfMaidensBowled,
-                                                                                                               Teams.teamTwoPlayers[i].RunsConceded,
-                                                                                                               Teams.teamTwoPlayers[i].NumberOfWicketsTaken,
-                                                                                                               Teams.teamTwoPlayers[i].WidesConceded,
-                                                                                                               Teams.teamTwoPlayers[i].NoBallsDelivered);
-                }
-            }
-            file.WriteLine("</table>");
-            file.WriteLine("</body>");
-            file.WriteLine("</html>");
-            file.Close();
-
             return;
         }
 
