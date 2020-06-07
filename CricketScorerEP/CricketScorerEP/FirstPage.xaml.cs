@@ -24,10 +24,7 @@ namespace CricketScorerEP
         private string teamNameHeader = Match.HomeTeam;
         public string TeamNameHeader
        {
-            get
-            {
-                return teamNameHeader;
-            }
+            get => teamNameHeader;
             set
             {
                 if (teamNameHeader != value)
@@ -41,10 +38,7 @@ namespace CricketScorerEP
         private string oversHeader = Innings.Overs.ToString();
         public string OversHeader
         {
-            get
-            {
-                return oversHeader;
-            }
+            get => oversHeader;
             set
             {
                 if (oversHeader != value)
@@ -58,10 +52,7 @@ namespace CricketScorerEP
         private string scoreHeader = Innings.Runs.ToString() + "-" + Innings.Wickets.ToString();
         public string ScoreHeader
         {
-            get
-            {
-                return scoreHeader;
-            }
+            get => scoreHeader;
             set
             {
                 if (scoreHeader != value)
@@ -75,10 +66,7 @@ namespace CricketScorerEP
         private string batsmanOne = Teams.teamOnePlayers[Teams.currentBatsmanOne].Name + "*";
         public string BatsmanOne
         {
-            get
-            {
-                return batsmanOne;
-            }
+            get => batsmanOne;
             set
             {
                 if (batsmanOne != value)
@@ -92,10 +80,7 @@ namespace CricketScorerEP
         private string batsmanOneRuns = Teams.teamOnePlayers[Teams.currentBatsmanOne].RunsScored.ToString();
         public string BatsmanOneRuns
         {
-            get
-            {
-                return batsmanOneRuns;
-            }
+            get => batsmanOneRuns;
             set
             {
                 if (batsmanOneRuns != value)
@@ -109,10 +94,7 @@ namespace CricketScorerEP
         private string batsmanTwo = Teams.teamOnePlayers[Teams.currentBatsmanTwo].Name;
         public string BatsmanTwo
         {
-            get
-            {
-                return batsmanTwo;
-            }
+            get => batsmanTwo;
             set
             {
                 if (batsmanTwo != value)
@@ -126,10 +108,7 @@ namespace CricketScorerEP
         private string batsmanTwoRuns = Teams.teamOnePlayers[Teams.currentBatsmanTwo].RunsScored.ToString();
         public string BatsmanTwoRuns
         {
-            get
-            {
-                return batsmanTwoRuns;
-            }
+            get => batsmanTwoRuns;
             set
             {
                 if (batsmanTwoRuns != value)
@@ -143,10 +122,7 @@ namespace CricketScorerEP
         private string currentBowler = Teams.teamTwoPlayers[Teams.currentBowler].Name;
         public string CurrentBowler
         {
-            get
-            {
-                return currentBowler;
-            }
+            get => currentBowler;
             set
             {
                 if (currentBowler != value)
@@ -163,10 +139,7 @@ namespace CricketScorerEP
                                        Teams.teamTwoPlayers[Teams.currentBowler].NumberOfWicketsTaken.ToString();
         public string BowlerFigures
         {
-            get
-            {
-                return bowlerFigures;
-            }
+            get => bowlerFigures;
             set
             {
                 if (bowlerFigures != value)
@@ -294,12 +267,12 @@ namespace CricketScorerEP
             Teams.UpdateBowlerOversBowled();
             if (Innings.validDeliveriesInThisOver == 6)
             { 
-            await PickNewBowler();
+                await PickNewBowler();
             }
             UpdateDisplay();
         }
 
-        async Task<string> RunsClicked(object sender, EventArgs e)
+        async void RunsClicked(object sender, EventArgs e)
         {
             string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             if (runsScored != "Cancel")
@@ -321,10 +294,10 @@ namespace CricketScorerEP
                 Innings.maidenBowled = false;
                 UpdateDisplay();
             }
-            return runsScored;
+            return;
         }
 
-        async Task<string> BoundaryClicked(object sender, EventArgs e)
+        async void BoundaryClicked(object sender, EventArgs e)
         {
             var boundaryRuns = await DisplayActionSheet("Was it a 4 or a 6?", "Cancel", null, "4", "6");
             if (boundaryRuns != "Cancel")
@@ -351,10 +324,10 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            return boundaryRuns;
+            
         }
 
-        async Task<string> NoBallClicked(object sender, EventArgs e)
+        async void NoBallClicked(object sender, EventArgs e)
         {
             var anyRunsScoredOffNoBall = await DisplayActionSheet("Were there any runs scored off this no ball?", "Cancel", null, "Yes", "No");
             if (anyRunsScoredOffNoBall != "Cancel")
@@ -411,10 +384,10 @@ namespace CricketScorerEP
                 Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
                 UpdateDisplay();
             }
-            return anyRunsScoredOffNoBall;
+            
         }
 
-        async Task<string> ByesClicked(object sender, EventArgs e)
+        async void ByesClicked(object sender, EventArgs e)
         {
             var typeOfByes = await DisplayActionSheet("Were they byes or leg byes?", "Cancel", null, "Byes", "Leg Byes");
             if (typeOfByes != "Cancel")
@@ -452,10 +425,10 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            return typeOfByes;
+            
         }
 
-        async Task<string> WideClicked(object sender, EventArgs e)
+        async void WideClicked(object sender, EventArgs e)
         {
             var byesOffWide = await DisplayActionSheet("Were there any byes taken off the wide?", "Cancel", null, "Yes", "No");
             if (byesOffWide != "Cancel")
@@ -475,7 +448,6 @@ namespace CricketScorerEP
                 Innings.RecordWide();
                 UpdateDisplay();
             }
-            return byesOffWide;
         }
 
         async Task<string> DetermineWhichBatsmanIsOut()
@@ -548,7 +520,7 @@ namespace CricketScorerEP
             Teams.teamOnePlayers[Teams.nextBatsman].StartTime = DateTime.Now.TimeOfDay;
         }
 
-        async Task<string> WicketClicked(object sender, EventArgs e)
+        async void WicketClicked(object sender, EventArgs e)
         {
             var howOut = await DisplayActionSheet("How was the batsman out?", "Cancel", null, "Bowled", "Caught", "LBW", "Run Out", "Stumped", "Other");
             if (howOut != "Cancel")
@@ -646,7 +618,7 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            return howOut;
+            
         }
     }
 }

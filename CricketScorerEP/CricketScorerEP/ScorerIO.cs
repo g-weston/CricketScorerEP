@@ -219,10 +219,8 @@ namespace CricketScorerEP
            // StringWriter stringWriter = new StringWriter();
            // using (XmlTextWriter writer = new XmlTextWriter(stringWriter))
 
-            var settings = new System.Xml.XmlWriterSettings();
-            settings.OmitXmlDeclaration = true;
-            settings.Indent = true;
-            var writer = System.Xml.XmlWriter.Create("scorecard.html", settings);
+           var settings = new System.Xml.XmlWriterSettings {OmitXmlDeclaration = true, Indent = true};
+           var writer = System.Xml.XmlWriter.Create("scorecard.html", settings);
 
             writer.WriteStartDocument();
             writer.WriteDocType("html", null, null, null);
