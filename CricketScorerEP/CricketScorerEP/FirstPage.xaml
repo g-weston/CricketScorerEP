@@ -46,7 +46,7 @@
                 <Button Text = "WIDE" Grid.Row="6" Grid.Column="0" Clicked="WideClicked" Grid.ColumnSpan="2"/>
                 <Button Text = "NO BALL" Grid.Row="6" Grid.Column="2" Clicked="NoBallClicked" Grid.ColumnSpan="2"/>
                 <Button Text = "BYES/LEGBYES" Grid.Row="7" Grid.Column="0" Clicked="ByesClicked" Grid.ColumnSpan="2"/>
-                <Button Text = "SETTINGS/OVERRULE" Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="2"/>
+                <Button Text = "SETTINGS/OVERRULE" Grid.Row="7" Grid.Column="2" Clicked="NavigateSettingsPage" Grid.ColumnSpan="2"/>
             </Grid>
         </StackLayout>
     </ContentPage.Content>

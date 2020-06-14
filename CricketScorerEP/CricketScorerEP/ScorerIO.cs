@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
-using System.Xml;
 using System.Collections.Generic;
+using System.IO;
+using Xamarin.Forms;
 
 namespace CricketScorerEP
 {
@@ -21,7 +21,7 @@ namespace CricketScorerEP
                 teamNumberWord = "Two"; ;
 
             string filename = "Team" + teamNumberWord + "Definition.txt";
-        //    string fileNameWithPath = GetDownloadFilename(filename);
+            //    string fileNameWithPath = GetDownloadFilename(filename);
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
             List<string> fileContents = new List<string>();
@@ -91,10 +91,10 @@ namespace CricketScorerEP
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
 
             List<string> fileContents = new List<string>();
-            System.IO.StreamReader file = new System.IO.StreamReader(fileNameWithPath);
+            System.IO.StreamReader matchReader = new System.IO.StreamReader(fileNameWithPath);
 
             string line;
-            while ((line = file.ReadLine()) != null)
+            while ((line = matchReader.ReadLine()) != null)
             {
                 fileContents.Add(line);
             }
@@ -110,7 +110,51 @@ namespace CricketScorerEP
             int.TryParse(fileContents[7], out input);
             Match.RebowlDeliveriesFromOver = input;
 
-            file.Close();
+            matchReader.Close();
+        }
+
+        public static void WriteMatchDetails(string filename)
+        {
+            // TODO guard / try/catch around this if file does not exist, or insufficient permissions granted
+            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+
+            List<string> fileContents = new List<string>();
+            fileContents.Add(Match.Date.ToString("dd/MM/yyyy"));
+            fileContents.Add(Match.Competition);
+            fileContents.Add(Match.Venue);
+            fileContents.Add(Match.Format);
+            fileContents.Add(Match.AgeGroup);
+            fileContents.Add(Match.ScheduledOvers.ToString());
+            fileContents.Add(Match.RunsPerWideOrNoBall.ToString());
+            fileContents.Add(Match.RebowlDeliveriesFromOver.ToString());
+            
+            
+            using (System.IO.StreamWriter matchWriter = new System.IO.StreamWriter(fileNameWithPath))
+            {
+                matchWriter.AutoFlush = true;
+                fileContents.ForEach(matchWriter.WriteLine);
+                matchWriter.Flush();
+                matchWriter.Close();
+            }
+        }
+
+        public static void EditMatchDetails(string filename)
+        {
+            var pathFile =
+                Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+
+            List<string> fileContents = new List<string>();
+            System.IO.StreamReader file = new System.IO.StreamReader(fileNameWithPath);
+
+            string line;
+            while ((line = file.ReadLine()) != null)
+            {
+                fileContents.Add(line);
+            }
+
+            
         }
 
         public static void WriteScorecard()
@@ -216,11 +260,11 @@ namespace CricketScorerEP
         public static void WriteHTMLScorecard()
         {
             // This will ultimately replace WriteScorecard(), but will be developed in parallel, leaving WriteScorecard() working in the meantime
-           // StringWriter stringWriter = new StringWriter();
-           // using (XmlTextWriter writer = new XmlTextWriter(stringWriter))
+            // StringWriter stringWriter = new StringWriter();
+            // using (XmlTextWriter writer = new XmlTextWriter(stringWriter))
 
-           var settings = new System.Xml.XmlWriterSettings {OmitXmlDeclaration = true, Indent = true};
-           var writer = System.Xml.XmlWriter.Create("scorecard.html", settings);
+            var settings = new System.Xml.XmlWriterSettings { OmitXmlDeclaration = true, Indent = true };
+            var writer = System.Xml.XmlWriter.Create("scorecard.html", settings);
 
             writer.WriteStartDocument();
             writer.WriteDocType("html", null, null, null);
@@ -235,7 +279,7 @@ namespace CricketScorerEP
             writer.WriteEndElement(); // </html>
             writer.WriteEndDocument();
             writer.Close();
-            
+
         }
     }
 }

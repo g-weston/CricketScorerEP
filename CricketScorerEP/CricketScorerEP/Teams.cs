@@ -21,7 +21,7 @@ namespace CricketScorerEP
             return;
         }
 
-        public static void UpdateBowlerOversBowled() 
+        public static void UpdateBowlerOversBowled()
         {
             Teams.teamTwoPlayers[Teams.currentBowler].NumberOfOversBowled += 0.1;
             Innings.validDeliveriesInThisOver++;
@@ -34,5 +34,5 @@ namespace CricketScorerEP
                 Innings.CompleteOvers++;
             }
         }
-    } 
+    }
 }

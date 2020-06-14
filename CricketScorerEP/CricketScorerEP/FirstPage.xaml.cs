@@ -6,12 +6,12 @@ using Xamarin.Forms;
 
 namespace CricketScorerEP
 {
-	public partial class FirstPage : ContentPage, INotifyPropertyChanged
+    public partial class FirstPage : ContentPage, INotifyPropertyChanged
     {
         public FirstPage()
-		{
-			InitializeComponent();
-		    BindingContext = this;
+        {
+            InitializeComponent();
+            BindingContext = this;
             // TODO check that Match and Teams are not null - bail out if so
         }
 
@@ -20,10 +20,15 @@ namespace CricketScorerEP
             await Navigation.PushAsync(new MainPage());
         }
 
+        private async void NavigateSettingsPage(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new NewPage());
+        }
+
         // TODO Need to extract this block of display strings to a separate file probably, as part of the partial class, in order to improve readability
         private string teamNameHeader = Match.HomeTeam;
         public string TeamNameHeader
-       {
+        {
             get => teamNameHeader;
             set
             {
@@ -266,7 +271,7 @@ namespace CricketScorerEP
         {
             Teams.UpdateBowlerOversBowled();
             if (Innings.validDeliveriesInThisOver == 6)
-            { 
+            {
                 await PickNewBowler();
             }
             UpdateDisplay();
@@ -277,6 +282,16 @@ namespace CricketScorerEP
             string runsScored = await DisplayActionSheet("How many runs did the batsman score?", "Cancel", null, "1", "2", "3", "other");
             if (runsScored != "Cancel")
             {
+                if (runsScored == "other")
+                {
+                    runsScored = await DisplayPromptAsync("How many runs were scored?", null, "Enter", "Cancel");
+                    while (int.TryParse(runsScored, out int numberRunsScored) == false)
+                    {
+                        await DisplayActionSheet("Please enter a number", null, "Ok");
+                        runsScored = await DisplayPromptAsync("How many runs were scored?", null, "Enter", "Cancel");
+                    }
+                }
+
                 int.TryParse(runsScored, out int runsScoredThisDelivery);
                 Innings.Runs += runsScoredThisDelivery;
                 Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += runsScoredThisDelivery;
@@ -324,7 +339,7 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            
+
         }
 
         async void NoBallClicked(object sender, EventArgs e)
@@ -344,7 +359,7 @@ namespace CricketScorerEP
                     {
                         case ("Off the bat"):
                             Innings.Runs += noBallRunsThisDelivery;
-                            Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored   += noBallRunsThisDelivery;
+                            Teams.teamOnePlayers[Teams.batsmanFacing].RunsScored += noBallRunsThisDelivery;
                             Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += noBallRunsThisDelivery;
                             if (noBallRunsThisDelivery == 4)
                             {
@@ -384,7 +399,7 @@ namespace CricketScorerEP
                 Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
                 UpdateDisplay();
             }
-            
+
         }
 
         async void ByesClicked(object sender, EventArgs e)
@@ -411,7 +426,7 @@ namespace CricketScorerEP
                             "1", "2", "3", "4", "other");
                         int.TryParse(howManyLegByes, out int legByesThisDelivery);
                         Innings.LegByes += legByesThisDelivery;
-                        Innings.Runs    += legByesThisDelivery;
+                        Innings.Runs += legByesThisDelivery;
                         if (legByesThisDelivery % 2 == 1) //short runs?
                         {
                             Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
@@ -425,7 +440,7 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            
+
         }
 
         async void WideClicked(object sender, EventArgs e)
@@ -453,7 +468,7 @@ namespace CricketScorerEP
         async Task<string> DetermineWhichBatsmanIsOut()
         {
             string batsmanOut = await DisplayActionSheet("Which batsman was out?", null, null,
-                                                        Teams.teamOnePlayers[Teams.batsmanFacing].Name, 
+                                                        Teams.teamOnePlayers[Teams.batsmanFacing].Name,
                                                         Teams.teamOnePlayers[Teams.batsmanNotFacing].Name);
             if (batsmanOut == Teams.teamOnePlayers[Teams.batsmanFacing].Name)
             {
@@ -618,7 +633,7 @@ namespace CricketScorerEP
                 }
                 UpdateDisplay();
             }
-            
+
         }
     }
 }

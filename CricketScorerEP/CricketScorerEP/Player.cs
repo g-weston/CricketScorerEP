@@ -39,7 +39,7 @@ namespace CricketScorerEP
         {
             ClubName = clubName;
             UniqueId = uniquePlayerId;
-            Name     = playerName;
+            Name = playerName;
             FullName = fullName;
 
             IsCaptain = false;
@@ -59,7 +59,7 @@ namespace CricketScorerEP
             WidesConceded = 0;
             NoBallsDelivered = 0;
             RunsConceded = 0;
-            
+
             IsOut = false;
             HowOut = 0;
             DismissingBowler = 0;
@@ -67,4 +67,4 @@ namespace CricketScorerEP
             DismissalMethod = "";
         }
     }
- }
+}
