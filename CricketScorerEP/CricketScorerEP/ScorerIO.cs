@@ -7,23 +7,27 @@ namespace CricketScorerEP
 {
     public class ScorerIO
     {
-        static string GetDownloadFilename(string filename)
+        public static string GetDownloadFilename(string filename)
         {
             var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
             return fileNameWithPath;
         }
 
-        public static void PopulateTeamFromFile(int teamNumber)
+        public static string GetTeamFileName(int teamNumber)
         {
             string teamNumberWord = "One";
             if (teamNumber == 2)
                 teamNumberWord = "Two"; ;
 
             string filename = "Team" + teamNumberWord + "Definition.txt";
-            //    string fileNameWithPath = GetDownloadFilename(filename);
-            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+            return filename;
+        }
+
+        public static void PopulateTeamFromFile(string filename, int teamNumber)
+        {
+            
+            string fileNameWithPath = GetDownloadFilename(filename);
             List<string> fileContents = new List<string>();
             StreamReader file = new StreamReader(fileNameWithPath);
 
@@ -87,11 +91,9 @@ namespace CricketScorerEP
         public static void ReadMatchDetails(string filename)
         {
             // TODO guard / try/catch around this if file does not exist, or insufficient permissions granted
-            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
-
+            string fileNameWithPath = GetDownloadFilename(filename);
             List<string> fileContents = new List<string>();
-            System.IO.StreamReader matchReader = new System.IO.StreamReader(fileNameWithPath);
+            StreamReader matchReader = new StreamReader(fileNameWithPath);
 
             string line;
             while ((line = matchReader.ReadLine()) != null)
@@ -116,21 +118,22 @@ namespace CricketScorerEP
         public static void WriteMatchDetails(string filename)
         {
             // TODO guard / try/catch around this if file does not exist, or insufficient permissions granted
-            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+            string fileNameWithPath = GetDownloadFilename(filename);
 
-            List<string> fileContents = new List<string>();
-            fileContents.Add(Match.Date.ToString("dd/MM/yyyy"));
-            fileContents.Add(Match.Competition);
-            fileContents.Add(Match.Venue);
-            fileContents.Add(Match.Format);
-            fileContents.Add(Match.AgeGroup);
-            fileContents.Add(Match.ScheduledOvers.ToString());
-            fileContents.Add(Match.RunsPerWideOrNoBall.ToString());
-            fileContents.Add(Match.RebowlDeliveriesFromOver.ToString());
-            
-            
-            using (System.IO.StreamWriter matchWriter = new System.IO.StreamWriter(fileNameWithPath))
+            List<string> fileContents = new List<string>
+            {
+                Match.Date.ToString("dd/MM/yyyy"),
+                Match.Competition,
+                Match.Venue,
+                Match.Format,
+                Match.AgeGroup,
+                Match.ScheduledOvers.ToString(),
+                Match.RunsPerWideOrNoBall.ToString(),
+                Match.RebowlDeliveriesFromOver.ToString()
+            };
+
+
+            using (StreamWriter matchWriter = new StreamWriter(fileNameWithPath))
             {
                 matchWriter.AutoFlush = true;
                 fileContents.ForEach(matchWriter.WriteLine);
@@ -139,33 +142,14 @@ namespace CricketScorerEP
             }
         }
 
-        public static void EditMatchDetails(string filename)
-        {
-            var pathFile =
-                Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
-
-            List<string> fileContents = new List<string>();
-            System.IO.StreamReader file = new System.IO.StreamReader(fileNameWithPath);
-
-            string line;
-            while ((line = file.ReadLine()) != null)
-            {
-                fileContents.Add(line);
-            }
-
-            
-        }
-
         public static void WriteScorecard()
         {
             // Base this on play-cricket scorecard format
             // This code to find the mobile Download folder is used in several places - perhaps extract to a utility method, and also perhaps think about making the location configurable.
             string filename = Match.HomeTeam + "_vs_" + Match.AwayTeam + "_" + DateTime.Today.ToString("dd-MM-yyyy") + ".html";
-            var pathFile = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            string fileNameWithPath = Path.Combine(pathFile.ToString(), filename);
+            string fileNameWithPath = GetDownloadFilename(filename);
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileNameWithPath))
+            using (StreamWriter file = new StreamWriter(fileNameWithPath))
             {
                 file.AutoFlush = true;
 

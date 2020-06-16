@@ -1,3 +1,4 @@
+using Android.Content;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -6,6 +7,7 @@ namespace CricketScorerEP
 {
     public partial class App : Application
     {
+        
         public App()
         {
             InitializeComponent();

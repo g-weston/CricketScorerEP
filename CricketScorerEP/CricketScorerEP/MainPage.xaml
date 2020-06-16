@@ -29,7 +29,7 @@
                 </Grid.ColumnDefinitions>
                 <Label Text="Cricket Scorer" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="Large" TextColor="Black"/>
                 <Button Text = "Start Match" Grid.Row="2" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" Clicked="NavigateFirstPage" />
-                <Button Text = "Team Options" Grid.Row="5" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" Clicked="TeamLoadOption" />
+                <Button Text = "Team Options" Grid.Row="5" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" Clicked="TeamOptions" />
                 <Button Text = "Settings" Grid.Row="8" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" Clicked="EditMatchDetails" />
             </Grid>
 

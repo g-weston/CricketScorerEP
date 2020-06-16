@@ -1,11 +1,17 @@
-﻿using System;
+﻿using Android.Support.V4.Content;
+using System;
+using System.IO;
+using System.Xml.Serialization;
+using Android;
+using Android.Content;
+using Android.Content.PM;
 using Xamarin.Forms;
 
 namespace CricketScorerEP
 {
     public partial class MainPage : ContentPage
     {
-
+        public static Context appContext;
         public MainPage()
         {
             InitializeComponent();
@@ -22,10 +28,35 @@ namespace CricketScorerEP
             await Navigation.PushAsync(new NewPage());
         }
         */
-        async void TeamLoadOption(object sender, EventArgs e)
+        
+        public async void TeamOptions (object sender, EventArgs e)
+        {
+            string loadOption = await DisplayActionSheet("Do you want to load a team or match details?", "Cancel", null,
+                    "Match Details", "Teams");
+            switch (loadOption)
+            {
+                case "Match Details":
+                    if (File.Exists(ScorerIO.GetDownloadFilename("MatchDefinition.txt")))
+                    {
+                        ScorerIO.ReadMatchDetails("MatchDefinition.txt");
+                    }
+                    else
+                    {
+                        await DisplayActionSheet("A Match Definition file could not be found", null, "Ok");
+                        // possibility for entering and creating a match definition file on the app if one wasnt found
+                    }
+                    break;
+                case "Teams":
+                    TeamLoadOption();
+                    break;
+            }
+
+        }
+        
+        async void TeamLoadOption()
         {
             // TODO Have a guard or try/catch in here in case file does not exist (or cannot be read) to avoid exceptions
-            ScorerIO.ReadMatchDetails("MatchDefinition.txt");
+            
             Innings.ScheduledOvers = Match.ScheduledOvers;
             string team = await DisplayActionSheet("Which team do you wish to input (1 or 2)?", "Cancel", null, "1", "2");
             int.TryParse(team, out int teamNumber);
@@ -37,7 +68,14 @@ namespace CricketScorerEP
                 case "File":
                     try
                     {
-                        ScorerIO.PopulateTeamFromFile(teamNumber);
+                        if (File.Exists(ScorerIO.GetDownloadFilename(ScorerIO.GetTeamFileName(teamNumber))))
+                        {
+                            ScorerIO.PopulateTeamFromFile(ScorerIO.GetTeamFileName(teamNumber), teamNumber);
+                        }
+                        else
+                        {
+                            await DisplayActionSheet("That team file could not be found", null, "Ok");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -84,7 +122,7 @@ namespace CricketScorerEP
                     break;
                 case "Scheduled Overs":
                     string scheduledOvers = await DisplayPromptAsync("How many overs are there?", null, "Enter", "Cancel");
-                    while (int.TryParse(scheduledOvers, out int scheduledNumberOvers) == false)
+                    while (int.TryParse(scheduledOvers, out _) == false)
                     {
                         await DisplayActionSheet("Please enter a number", null, "Ok");
                         scheduledOvers = await DisplayPromptAsync("How many overs are there?", null, "Enter", "Cancel");
@@ -98,7 +136,7 @@ namespace CricketScorerEP
                     break;
                 case "Over wides/no balls rebowled from":
                     string overRebowls = await DisplayPromptAsync("What over are runs rebowled from?", null, "Enter", "Cancel");
-                    while (int.TryParse(overRebowls, out int overNumerRebowls) == false)
+                    while (int.TryParse(overRebowls, out _) == false)
                     {
                         await DisplayActionSheet("Please enter a number", null, "Ok");
                         overRebowls = await DisplayPromptAsync("What over are runs rebowled from?", null, "Enter", "Cancel");

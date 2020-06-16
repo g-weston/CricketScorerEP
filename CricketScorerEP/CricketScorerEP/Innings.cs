@@ -16,6 +16,15 @@
         public static bool maidenBowled = true;
         public static int ByesOffWide, ByesOffNoBall, LegByesOffNoBall;
 
+        public static void RecordNoBall()
+        {
+            Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
+            Innings.Runs += Match.RunsPerWideOrNoBall;
+            Innings.NoBalls++;
+            Teams.teamTwoPlayers[Teams.currentBowler].NoBallsDelivered++;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += Match.RunsPerWideOrNoBall;
+        }
+
         public static void RecordByesOffNoBall()
         {
             Innings.Runs += ByesOffNoBall;
@@ -34,8 +43,8 @@
 
         public static void RecordWide()
         {
-            Innings.Runs++;
-            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
+            Innings.Runs += Match.RunsPerWideOrNoBall;
+            Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded += Match.RunsPerWideOrNoBall;
             Teams.teamTwoPlayers[Teams.currentBowler].WidesConceded++;
             Innings.Wides++;
         }

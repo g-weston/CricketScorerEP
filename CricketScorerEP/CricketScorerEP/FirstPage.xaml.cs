@@ -285,7 +285,7 @@ namespace CricketScorerEP
                 if (runsScored == "other")
                 {
                     runsScored = await DisplayPromptAsync("How many runs were scored?", null, "Enter", "Cancel");
-                    while (int.TryParse(runsScored, out int numberRunsScored) == false)
+                    while (int.TryParse(runsScored, out _) == false)
                     {
                         await DisplayActionSheet("Please enter a number", null, "Ok");
                         runsScored = await DisplayPromptAsync("How many runs were scored?", null, "Enter", "Cancel");
@@ -392,11 +392,7 @@ namespace CricketScorerEP
                         Teams.SwapFacingBatsmen(ref Teams.batsmanFacing, ref Teams.batsmanNotFacing);
                     };
                 }
-                Teams.teamOnePlayers[Teams.batsmanFacing].DeliveriesFaced++;
-                Innings.Runs++; // += RunsPerNoBall (=2 in junior cricket)
-                Innings.NoBalls++;
-                Teams.teamTwoPlayers[Teams.currentBowler].NoBallsDelivered++;
-                Teams.teamTwoPlayers[Teams.currentBowler].RunsConceded++;
+                Innings.RecordNoBall();
                 UpdateDisplay();
             }
 
